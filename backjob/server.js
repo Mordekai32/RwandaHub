@@ -15,16 +15,18 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Ensure upload directories exist
+// Ensure all upload directories exist
 const cvDir = path.join(__dirname, 'uploads/cvs');
 const profileDir = path.join(__dirname, 'uploads/profiles');
 const companyLogoDir = path.join(__dirname, 'uploads/companies');
+const listingImagesDir = path.join(__dirname, 'uploads/listings');
+const messageAttachmentsDir = path.join(__dirname, 'uploads/messages');
 
-if (!fs.existsSync(cvDir)) fs.mkdirSync(cvDir, { recursive: true });
-if (!fs.existsSync(profileDir)) fs.mkdirSync(profileDir, { recursive: true });
-if (!fs.existsSync(companyLogoDir)) fs.mkdirSync(companyLogoDir, { recursive: true });
+[ cvDir, profileDir, companyLogoDir, listingImagesDir, messageAttachmentsDir ].forEach(dir => {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+});
 
-// Multer configuration for CV uploads (PDF only)
+// Multer config for CVs (PDF)
 const cvStorage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, cvDir),
   filename: (req, file, cb) => {
@@ -38,7 +40,7 @@ const cvFileFilter = (req, file, cb) => {
 };
 const uploadCV = multer({ storage: cvStorage, fileFilter: cvFileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
 
-// Multer configuration for profile images (images only)
+// Multer config for profile images
 const profileStorage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, profileDir),
   filename: (req, file, cb) => {
@@ -53,7 +55,7 @@ const imageFileFilter = (req, file, cb) => {
 };
 const uploadProfileImage = multer({ storage: profileStorage, fileFilter: imageFileFilter, limits: { fileSize: 2 * 1024 * 1024 } });
 
-// Multer configuration for company logos (images only)
+// Multer config for company logos
 const logoStorage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, companyLogoDir),
   filename: (req, file, cb) => {
@@ -63,7 +65,19 @@ const logoStorage = multer.diskStorage({
 });
 const uploadLogo = multer({ storage: logoStorage, fileFilter: imageFileFilter, limits: { fileSize: 2 * 1024 * 1024 } });
 
-// MongoDB Models
+// Multer config for listing images (multiple)
+const listingImageStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, listingImagesDir),
+  filename: (req, file, cb) => {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, 'listing-' + unique + path.extname(file.originalname));
+  }
+});
+const uploadListingImages = multer({ storage: listingImageStorage, fileFilter: imageFileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
+
+// ========== MongoDB Models ==========
+
+// User model (extended)
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -73,7 +87,7 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Company schema with phone field
+// Company model
 const companySchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
@@ -85,6 +99,7 @@ const companySchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+// Job model – ADDED application instructions fields
 const jobSchema = new mongoose.Schema({
   title: { type: String, required: true },
   company: { type: String, required: true },
@@ -96,8 +111,13 @@ const jobSchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   featured: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
+  // NEW: How to apply instructions
+  applicationInstructions: { type: String, default: "Click the 'Apply Now' button below and fill out the application form." },
+  applicationEmail: { type: String, default: null },
+  applicationUrl: { type: String, default: null }
 });
 
+// Application model
 const applicationSchema = new mongoose.Schema({
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -106,12 +126,92 @@ const applicationSchema = new mongoose.Schema({
   appliedAt: { type: Date, default: Date.now },
 });
 
+// ---------- NEW MODELS FOR ADVERTISEMENTS ----------
+
+// Listing (product, service, training, etc.)
+const listingSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  price: { type: Number, required: true },
+  type: { type: String, enum: ['service', 'product', 'training'], required: true },
+  category: { type: String },
+  images: [{ type: String }],
+  status: { type: String, enum: ['active', 'paused', 'expired'], default: 'active' },
+  companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  impressions: { type: Number, default: 0 },
+  clicks: { type: Number, default: 0 },
+  conversions: { type: Number, default: 0 },
+  promotionBudget: { type: Number, default: 0 },
+  promotionEndDate: { type: Date, default: null },
+  createdAt: { type: Date, default: Date.now },
+});
+
+// Order (when someone buys a product/service through the marketplace)
+const orderSchema = new mongoose.Schema({
+  listingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Listing', required: true },
+  buyerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  buyerName: { type: String, required: true },
+  buyerEmail: { type: String, required: true },
+  amount: { type: Number, required: true },
+  status: { type: String, enum: ['pending', 'completed', 'cancelled'], default: 'pending' },
+  createdAt: { type: Date, default: Date.now },
+});
+
+// Message (inquiries from customers)
+const messageSchema = new mongoose.Schema({
+  listingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Listing', required: true },
+  from: { type: String, required: true },
+  message: { type: String, required: true },
+  reply: { type: String, default: null },
+  read: { type: Boolean, default: false },
+  timestamp: { type: Date, default: Date.now },
+});
+
+// Invoice / Billing record for promotions
+const invoiceSchema = new mongoose.Schema({
+  companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true },
+  listingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Listing' },
+  amount: { type: Number, required: true },
+  description: { type: String },
+  status: { type: String, enum: ['pending', 'paid', 'failed'], default: 'pending' },
+  dueDate: { type: Date },
+  paidAt: { type: Date },
+  createdAt: { type: Date, default: Date.now },
+});
+
+// Payment method (stored tokenized - for demo we store last4)
+const paymentMethodSchema = new mongoose.Schema({
+  companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true },
+  last4: { type: String, required: true },
+  brand: { type: String, required: true },
+  expiry: { type: String, required: true },
+  token: { type: String },
+  isDefault: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+});
+
+// Analytics log for daily tracking
+const analyticsLogSchema = new mongoose.Schema({
+  listingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Listing', required: true },
+  date: { type: Date, default: Date.now },
+  impressions: { type: Number, default: 0 },
+  clicks: { type: Number, default: 0 },
+  conversions: { type: Number, default: 0 },
+});
+
 const User = mongoose.model('User', userSchema);
 const Company = mongoose.model('Company', companySchema);
 const Job = mongoose.model('Job', jobSchema);
 const Application = mongoose.model('Application', applicationSchema);
+const Listing = mongoose.model('Listing', listingSchema);
+const Order = mongoose.model('Order', orderSchema);
+const Message = mongoose.model('Message', messageSchema);
+const Invoice = mongoose.model('Invoice', invoiceSchema);
+const PaymentMethod = mongoose.model('PaymentMethod', paymentMethodSchema);
+const AnalyticsLog = mongoose.model('AnalyticsLog', analyticsLogSchema);
 
-// MongoDB Connection
+// ========== MongoDB Connection ==========
 mongoose.connect(process.env.MONGODB_URI)
   .then(async () => {
     console.log('MongoDB connected');
@@ -129,7 +229,7 @@ mongoose.connect(process.env.MONGODB_URI)
   })
   .catch(err => console.error('MongoDB connection error:', err));
 
-// JWT Middleware
+// ========== JWT & Auth Helpers ==========
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -160,7 +260,7 @@ const checkEmployerCompany = async (userId) => {
   return company;
 };
 
-// Auth Routes
+// ========== Existing Auth Routes ==========
 app.post('/api/register', async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -194,7 +294,6 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// User Profile Routes
 app.get('/api/profile', verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
@@ -220,7 +319,7 @@ app.put('/api/profile', verifyToken, uploadProfileImage.single('profileImage'), 
   }
 });
 
-// Company Profile Routes (Employer only)
+// ========== Company Routes ==========
 app.post('/api/company', verifyToken, authorizeRoles('employer'), uploadLogo.single('logo'), async (req, res) => {
   try {
     const { name, description, website, phone, employeeCount } = req.body;
@@ -262,7 +361,6 @@ app.get('/api/company', verifyToken, authorizeRoles('employer'), async (req, res
   }
 });
 
-// PUBLIC: Get all companies
 app.get('/api/companies', async (req, res) => {
   try {
     const companies = await Company.find().populate('ownerId', 'name email');
@@ -272,7 +370,7 @@ app.get('/api/companies', async (req, res) => {
   }
 });
 
-// Job Routes (with phone included)
+// ========== Updated Job Routes with Application Instructions ==========
 app.get('/api/jobs', async (req, res) => {
   try {
     const { title, location, minSalary, maxSalary } = req.query;
@@ -320,10 +418,15 @@ app.get('/api/jobs/:id', async (req, res) => {
   }
 });
 
+// Employer posts a job – now accepts application instructions
 app.post('/api/jobs', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const company = await checkEmployerCompany(req.user.id);
-    const { title, location, salary, description } = req.body;
+    const { 
+      title, location, salary, description,
+      applicationInstructions, applicationEmail, applicationUrl 
+    } = req.body;
+    
     const job = await Job.create({
       title,
       company: company.name,
@@ -333,6 +436,9 @@ app.post('/api/jobs', verifyToken, authorizeRoles('employer'), async (req, res) 
       description,
       createdBy: req.user.id,
       status: 'pending',
+      applicationInstructions: applicationInstructions || "Click the 'Apply Now' button below and fill out the application form.",
+      applicationEmail: applicationEmail || null,
+      applicationUrl: applicationUrl || null
     });
     res.status(201).json(job);
   } catch (error) {
@@ -372,7 +478,7 @@ app.get('/api/employer/jobs', verifyToken, authorizeRoles('employer'), async (re
   }
 });
 
-// Application Routes
+// ========== Application Routes ==========
 app.post('/api/apply/:jobId', verifyToken, authorizeRoles('jobseeker'), uploadCV.single('cv'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: 'CV file is required (PDF)' });
@@ -397,7 +503,7 @@ app.post('/api/apply/:jobId', verifyToken, authorizeRoles('jobseeker'), uploadCV
 app.get('/api/my-applications', verifyToken, authorizeRoles('jobseeker'), async (req, res) => {
   try {
     const applications = await Application.find({ userId: req.user.id })
-      .populate('jobId', 'title company location salary');
+      .populate('jobId', 'title company location salary applicationInstructions applicationEmail applicationUrl');
     res.json(applications);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -436,7 +542,7 @@ app.patch('/api/applications/:id/status', verifyToken, async (req, res) => {
   }
 });
 
-// Admin Routes
+// ========== Admin Routes ==========
 app.get('/api/admin/users', verifyToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const users = await User.find().select('-password');
@@ -496,7 +602,416 @@ app.delete('/api/admin/jobs/:id', verifyToken, authorizeRoles('admin'), async (r
   }
 });
 
-// Start Server
+// ========== EMPLOYER ADVERTISEMENT ROUTES ==========
+
+// ---- Listing Management ----
+app.post('/api/listings', verifyToken, authorizeRoles('employer'), uploadListingImages.array('images', 5), async (req, res) => {
+  try {
+    const company = await checkEmployerCompany(req.user.id);
+    const { title, description, price, type, category } = req.body;
+    const images = req.files ? req.files.map(file => `/uploads/listings/${file.filename}`) : [];
+    const listing = await Listing.create({
+      title,
+      description,
+      price: Number(price),
+      type,
+      category,
+      images,
+      companyId: company._id,
+      createdBy: req.user.id,
+      status: 'active',
+    });
+    res.status(201).json(listing);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.get('/api/listings/my', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company) return res.status(404).json({ message: 'Company not found' });
+    const listings = await Listing.find({ companyId: company._id }).sort({ createdAt: -1 });
+    res.json(listings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.get('/api/listings/:id', async (req, res) => {
+  try {
+    const listing = await Listing.findById(req.params.id).populate('companyId', 'name logo phone');
+    if (!listing) return res.status(404).json({ message: 'Listing not found' });
+    listing.impressions += 1;
+    await listing.save();
+    await AnalyticsLog.findOneAndUpdate(
+      { listingId: listing._id, date: { $gte: new Date().setHours(0,0,0,0) } },
+      { $inc: { impressions: 1 } },
+      { upsert: true }
+    );
+    res.json(listing);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.put('/api/listings/:id', verifyToken, authorizeRoles('employer'), uploadListingImages.array('images', 5), async (req, res) => {
+  try {
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) return res.status(404).json({ message: 'Listing not found' });
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company || listing.companyId.toString() !== company._id.toString()) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    const { title, description, price, type, category, status } = req.body;
+    const updateData = { title, description, price, type, category, status };
+    if (req.files && req.files.length) {
+      updateData.images = req.files.map(file => `/uploads/listings/${file.filename}`);
+    }
+    const updated = await Listing.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.delete('/api/listings/:id', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) return res.status(404).json({ message: 'Listing not found' });
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company || listing.companyId.toString() !== company._id.toString()) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    await listing.deleteOne();
+    res.json({ message: 'Listing deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ---- Track Clicks ----
+app.post('/api/listings/:id/click', async (req, res) => {
+  try {
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) return res.status(404).json({ message: 'Listing not found' });
+    listing.clicks += 1;
+    await listing.save();
+    await AnalyticsLog.findOneAndUpdate(
+      { listingId: listing._id, date: { $gte: new Date().setHours(0,0,0,0) } },
+      { $inc: { clicks: 1 } },
+      { upsert: true }
+    );
+    res.json({ message: 'Click tracked' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ---- Analytics ----
+app.get('/api/analytics', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company) return res.status(404).json({ message: 'Company not found' });
+    const listings = await Listing.find({ companyId: company._id });
+    const analyticsData = listings.map(l => ({
+      id: l._id,
+      title: l.title,
+      impressions: l.impressions,
+      clicks: l.clicks,
+      conversions: l.conversions,
+      ctr: l.impressions ? ((l.clicks / l.impressions) * 100).toFixed(2) : 0,
+      conversionRate: l.clicks ? ((l.conversions / l.clicks) * 100).toFixed(2) : 0,
+    }));
+    res.json(analyticsData);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.get('/api/analytics/:listingId', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const listing = await Listing.findById(req.params.listingId);
+    if (!listing) return res.status(404).json({ message: 'Listing not found' });
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company || listing.companyId.toString() !== company._id.toString()) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    const dailyLogs = await AnalyticsLog.find({ listingId: listing._id }).sort({ date: -1 }).limit(30);
+    const analytics = {
+      impressions: listing.impressions,
+      clicks: listing.clicks,
+      conversions: listing.conversions,
+      ctr: listing.impressions ? ((listing.clicks / listing.impressions) * 100).toFixed(2) : 0,
+      conversionRate: listing.clicks ? ((listing.conversions / listing.clicks) * 100).toFixed(2) : 0,
+      daily: dailyLogs,
+    };
+    res.json(analytics);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ---- Promote Listing (paid promotion) ----
+app.post('/api/promote', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const { listingId, budget, durationDays } = req.body;
+    const listing = await Listing.findById(listingId);
+    if (!listing) return res.status(404).json({ message: 'Listing not found' });
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company || listing.companyId.toString() !== company._id.toString()) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    const totalCost = budget * durationDays;
+    const paymentMethod = await PaymentMethod.findOne({ companyId: company._id });
+    if (!paymentMethod) {
+      return res.status(400).json({ message: 'Please add a payment method first' });
+    }
+    const invoice = await Invoice.create({
+      companyId: company._id,
+      listingId: listing._id,
+      amount: totalCost,
+      description: `Promotion for ${listing.title} - ${durationDays} days at ${budget}/day`,
+      status: 'pending',
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+    // For demo: auto-pay
+    invoice.status = 'paid';
+    invoice.paidAt = new Date();
+    await invoice.save();
+    listing.promotionBudget = (listing.promotionBudget || 0) + totalCost;
+    listing.promotionEndDate = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
+    await listing.save();
+    res.json({ success: true, message: 'Promotion activated', invoice });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ---- Orders ----
+app.post('/api/orders', async (req, res) => {
+  try {
+    const { listingId, buyerName, buyerEmail } = req.body;
+    const listing = await Listing.findById(listingId);
+    if (!listing) return res.status(404).json({ message: 'Listing not found' });
+    const order = await Order.create({
+      listingId,
+      buyerName,
+      buyerEmail,
+      amount: listing.price,
+      status: 'pending',
+    });
+    listing.conversions += 1;
+    await listing.save();
+    await AnalyticsLog.findOneAndUpdate(
+      { listingId: listing._id, date: { $gte: new Date().setHours(0,0,0,0) } },
+      { $inc: { conversions: 1 } },
+      { upsert: true }
+    );
+    res.status(201).json(order);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.get('/api/orders/my', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company) return res.status(404).json({ message: 'Company not found' });
+    const listings = await Listing.find({ companyId: company._id }).select('_id');
+    const listingIds = listings.map(l => l._id);
+    const orders = await Order.find({ listingId: { $in: listingIds } }).sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.patch('/api/orders/:id/status', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findById(req.params.id).populate('listingId');
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company || order.listingId.companyId.toString() !== company._id.toString()) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    order.status = status;
+    await order.save();
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ---- Messages ----
+app.post('/api/messages', async (req, res) => {
+  try {
+    const { listingId, from, message } = req.body;
+    const listing = await Listing.findById(listingId);
+    if (!listing) return res.status(404).json({ message: 'Listing not found' });
+    const msg = await Message.create({ listingId, from, message });
+    res.status(201).json(msg);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.get('/api/messages/my', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company) return res.status(404).json({ message: 'Company not found' });
+    const listings = await Listing.find({ companyId: company._id }).select('_id');
+    const listingIds = listings.map(l => l._id);
+    const messages = await Message.find({ listingId: { $in: listingIds } }).sort({ timestamp: -1 });
+    res.json(messages);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.post('/api/messages/:id/reply', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const { reply } = req.body;
+    const message = await Message.findById(req.params.id).populate('listingId');
+    if (!message) return res.status(404).json({ message: 'Message not found' });
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company || message.listingId.companyId.toString() !== company._id.toString()) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    message.reply = reply;
+    message.read = true;
+    await message.save();
+    res.json(message);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ---- Billing & Payment Methods ----
+app.get('/api/payment-methods', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company) return res.status(404).json({ message: 'Company not found' });
+    const methods = await PaymentMethod.find({ companyId: company._id });
+    res.json(methods);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.post('/api/payment-methods', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const { last4, brand, expiry, token } = req.body;
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company) return res.status(404).json({ message: 'Company not found' });
+    const method = await PaymentMethod.create({
+      companyId: company._id,
+      last4,
+      brand,
+      expiry,
+      token,
+      isDefault: (await PaymentMethod.countDocuments({ companyId: company._id })) === 0,
+    });
+    res.status(201).json(method);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.delete('/api/payment-methods/:id', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const method = await PaymentMethod.findById(req.params.id);
+    if (!method) return res.status(404).json({ message: 'Method not found' });
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company || method.companyId.toString() !== company._id.toString()) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    await method.deleteOne();
+    res.json({ message: 'Payment method removed' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.get('/api/invoices', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const company = await Company.findOne({ ownerId: req.user.id });
+    if (!company) return res.status(404).json({ message: 'Company not found' });
+    const invoices = await Invoice.find({ companyId: company._id }).sort({ createdAt: -1 });
+    res.json(invoices);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ---- Public Marketplace Feed ----
+app.get('/api/marketplace/listings', async (req, res) => {
+  try {
+    const { type, category, minPrice, maxPrice } = req.query;
+    let filter = { status: 'active' };
+    if (type) filter.type = type;
+    if (category) filter.category = { $regex: category, $options: 'i' };
+    if (minPrice) filter.price = { $gte: Number(minPrice) };
+    if (maxPrice) filter.price = { ...filter.price, $lte: Number(maxPrice) };
+    const listings = await Listing.find(filter)
+      .populate('companyId', 'name logo phone')
+      .sort({ createdAt: -1 });
+    res.json(listings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ---- Settings Routes ----
+app.put('/api/settings/business-profile', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const { name, description, website, phone, employeeCount } = req.body;
+    const company = await Company.findOneAndUpdate(
+      { ownerId: req.user.id },
+      { name, description, website, phone, employeeCount },
+      { new: true }
+    );
+    if (!company) return res.status(404).json({ message: 'Company not found' });
+    res.json(company);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+const notificationSettingsSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+  emailAlerts: { type: Boolean, default: true },
+  smsAlerts: { type: Boolean, default: false },
+  newLeadNotify: { type: Boolean, default: true },
+});
+const NotificationSettings = mongoose.model('NotificationSettings', notificationSettingsSchema);
+
+app.get('/api/settings/notifications', verifyToken, async (req, res) => {
+  try {
+    let settings = await NotificationSettings.findOne({ userId: req.user.id });
+    if (!settings) settings = await NotificationSettings.create({ userId: req.user.id });
+    res.json(settings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.put('/api/settings/notifications', verifyToken, async (req, res) => {
+  try {
+    const { emailAlerts, smsAlerts, newLeadNotify } = req.body;
+    const settings = await NotificationSettings.findOneAndUpdate(
+      { userId: req.user.id },
+      { emailAlerts, smsAlerts, newLeadNotify },
+      { new: true, upsert: true }
+    );
+    res.json(settings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ========== Start Server ==========
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
