@@ -73,12 +73,12 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// ✅ Added 'phone' field to company schema
+// Company schema with phone field
 const companySchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
   website: { type: String },
-  phone: { type: String, default: null },           // <-- NEW: phone number
+  phone: { type: String, default: null },
   logo: { type: String, default: null },
   employeeCount: { type: String, default: null },
   ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
@@ -220,7 +220,7 @@ app.put('/api/profile', verifyToken, uploadProfileImage.single('profileImage'), 
   }
 });
 
-// Company Profile Routes (Employer only) – ✅ includes 'phone'
+// Company Profile Routes (Employer only)
 app.post('/api/company', verifyToken, authorizeRoles('employer'), uploadLogo.single('logo'), async (req, res) => {
   try {
     const { name, description, website, phone, employeeCount } = req.body;
@@ -262,7 +262,7 @@ app.get('/api/company', verifyToken, authorizeRoles('employer'), async (req, res
   }
 });
 
-// PUBLIC: Get all companies (now includes phone)
+// PUBLIC: Get all companies
 app.get('/api/companies', async (req, res) => {
   try {
     const companies = await Company.find().populate('ownerId', 'name email');
@@ -272,7 +272,7 @@ app.get('/api/companies', async (req, res) => {
   }
 });
 
-// Job Routes
+// Job Routes (with phone included)
 app.get('/api/jobs', async (req, res) => {
   try {
     const { title, location, minSalary, maxSalary } = req.query;
@@ -283,18 +283,19 @@ app.get('/api/jobs', async (req, res) => {
     if (maxSalary) filter.salary = { ...filter.salary, $lte: parseInt(maxSalary) };
     
     const jobs = await Job.find(filter)
-      .populate('companyId', 'logo employeeCount')
+      .populate('companyId', 'logo employeeCount phone')
       .populate('createdBy', 'name email')
       .sort({ createdAt: -1 });
     
-    const jobsWithLogo = jobs.map(job => {
+    const jobsWithDetails = jobs.map(job => {
       const jobObj = job.toObject();
       jobObj.companyLogo = job.companyId?.logo || null;
       jobObj.employeeCount = job.companyId?.employeeCount || null;
+      jobObj.phone = job.companyId?.phone || null;
       return jobObj;
     });
     
-    res.json(jobsWithLogo);
+    res.json(jobsWithDetails);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -303,7 +304,7 @@ app.get('/api/jobs', async (req, res) => {
 app.get('/api/jobs/:id', async (req, res) => {
   try {
     const job = await Job.findById(req.params.id)
-      .populate('companyId', 'logo employeeCount')
+      .populate('companyId', 'logo employeeCount phone')
       .populate('createdBy', 'name email');
     if (!job) return res.status(404).json({ message: 'Job not found' });
     if (job.status !== 'approved' && (!req.headers.authorization || (req.user?.role !== 'admin' && req.user?.id !== job.createdBy._id.toString()))) {
@@ -312,6 +313,7 @@ app.get('/api/jobs/:id', async (req, res) => {
     const jobObj = job.toObject();
     jobObj.companyLogo = job.companyId?.logo || null;
     jobObj.employeeCount = job.companyId?.employeeCount || null;
+    jobObj.phone = job.companyId?.phone || null;
     res.json(jobObj);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -355,15 +357,16 @@ app.delete('/api/jobs/:id', verifyToken, async (req, res) => {
 app.get('/api/employer/jobs', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const jobs = await Job.find({ createdBy: req.user.id })
-      .populate('companyId', 'logo employeeCount')
+      .populate('companyId', 'logo employeeCount phone')
       .sort({ createdAt: -1 });
-    const jobsWithLogo = jobs.map(job => {
+    const jobsWithDetails = jobs.map(job => {
       const jobObj = job.toObject();
       jobObj.companyLogo = job.companyId?.logo || null;
       jobObj.employeeCount = job.companyId?.employeeCount || null;
+      jobObj.phone = job.companyId?.phone || null;
       return jobObj;
     });
-    res.json(jobsWithLogo);
+    res.json(jobsWithDetails);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -458,15 +461,16 @@ app.delete('/api/admin/users/:id', verifyToken, authorizeRoles('admin'), async (
 app.get('/api/admin/jobs/pending', verifyToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const jobs = await Job.find({ status: 'pending' })
-      .populate('companyId', 'logo employeeCount')
+      .populate('companyId', 'logo employeeCount phone')
       .populate('createdBy', 'name email');
-    const jobsWithLogo = jobs.map(job => {
+    const jobsWithDetails = jobs.map(job => {
       const jobObj = job.toObject();
       jobObj.companyLogo = job.companyId?.logo || null;
       jobObj.employeeCount = job.companyId?.employeeCount || null;
+      jobObj.phone = job.companyId?.phone || null;
       return jobObj;
     });
-    res.json(jobsWithLogo);
+    res.json(jobsWithDetails);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

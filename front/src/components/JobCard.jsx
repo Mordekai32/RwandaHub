@@ -64,13 +64,23 @@ export default function JobCard({ job }) {
           <span>{job.location}</span>
         </div>
 
-        {/* Number of Employees (new) */}
+        {/* Number of Employees */}
         {job.employeeCount && (
-          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm mb-3">
+          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm mb-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
             <span>{formatEmployeeCount(job.employeeCount)} employees</span>
+          </div>
+        )}
+
+        {/* Phone Number (new) */}
+        {job.phone && (
+          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm mb-3">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            <span>{job.phone}</span>
           </div>
         )}
 
@@ -89,7 +99,7 @@ export default function JobCard({ job }) {
           {job.description}
         </p>
 
-        {/* Footer with button and meta */}
+        {/* Footer */}
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-500 dark:text-gray-500">
             Posted {new Date(job.createdAt).toLocaleDateString()}
