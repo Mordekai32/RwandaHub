@@ -64,7 +64,7 @@ export default function TermsOfService() {
             </div>
 
             <div className="pt-4 border-t border-gray-200 text-xs text-gray-500">
-              <p>For questions, contact <a href="mailto:support@jobfinder.rw" className="text-indigo-600">support@jobfinder.rw</a>. These terms may be updated; continued use implies acceptance.</p>
+              <p>For questions, contact <a href="mailto:mordekai893@gmail.com" className="text-indigo-600">mordekai893@gmail.com</a>. These terms may be updated; continued use implies acceptance.</p>
             </div>
           </div>
         </div>

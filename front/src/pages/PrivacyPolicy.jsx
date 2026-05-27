@@ -77,7 +77,7 @@ export default function PrivacyPolicy() {
                   Your Rights
                 </h2>
                 <p className="text-gray-600 leading-relaxed">
-                  You may access, correct, or delete your account and personal data by contacting us at <a href="mailto:support@jobfinder.rw" className="text-indigo-600 hover:underline">support@jobfinder.rw</a>. You can also opt out of non‑essential communications.
+                  You may access, correct, or delete your account and personal data by contacting us at <a href="mailto:mordekai893@gmail.com" className="text-indigo-600 hover:underline">mordekai893@gmail.com</a>. You can also opt out of non‑essential communications.
                 </p>
               </div>
             </div>
