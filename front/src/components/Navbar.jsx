@@ -251,8 +251,8 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Add animation keyframes for dropdown fade-in */}
-      <style jsx>{`
+      {/* Fixed: removed jsx attribute to avoid React warning */}
+      <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(-8px); }
           to { opacity: 1; transform: translateY(0); }

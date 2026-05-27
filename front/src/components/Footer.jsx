@@ -12,7 +12,6 @@ export default function Footer() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Quick links with their corresponding routes
   const quickLinks = [
     { name: 'Find Jobs', path: '/find-jobs' },
     { name: 'Companies', path: '/companies' },
@@ -20,7 +19,6 @@ export default function Footer() {
     { name: 'About Us', path: '/about' }
   ];
 
-  // Resources with routes (assuming you have created these pages)
   const resources = [
     { name: 'Help Center', path: '/help-center', icon: FaQuestionCircle },
     { name: 'Career Tips', path: '/career-tips', icon: FaUserFriends },
@@ -28,7 +26,6 @@ export default function Footer() {
     { name: 'Support', path: '/support', icon: FaShieldAlt }
   ];
 
-  // Legal links for footer bottom
   const legalLinks = [
     { name: 'Privacy Policy', path: '/privacy' },
     { name: 'Terms of Service', path: '/terms' },
@@ -50,50 +47,50 @@ export default function Footer() {
 
   return (
     <>
-      <footer className="relative mt-4 bg-slate-900/95 backdrop-blur-sm border-t border-slate-800/50 overflow-hidden">
-        {/* Animated background blobs with modern blue/emerald */}
+      <footer className="relative mt-4 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 border-t border-indigo-500/20 overflow-hidden">
+        {/* Animated glowing background blobs – energetic neon accents */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-blue-600/10 to-emerald-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-emerald-500/5 to-blue-600/5 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-slate-700/10 to-blue-600/0 blur-2xl" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-blue-500/30 to-emerald-500/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-indigo-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse delay-700" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse delay-1000" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-4">
-            {/* Brand column */}
+        <div className="relative max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
+            {/* Brand column – premium glass effect */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 bg-gradient-to-br from-blue-600 to-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-blue-600/20">
-                  <FaBriefcase className="text-white text-xs" />
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-emerald-400 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                  <FaBriefcase className="text-white text-sm" />
                 </div>
-                <h2 className="text-xl font-bold bg-gradient-to-r from-slate-200 to-blue-400 bg-clip-text text-transparent">
+                <h2 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-emerald-300 to-white bg-clip-text text-transparent">
                   JobFinder Rwanda
                 </h2>
               </div>
-              <p className="text-slate-400 text-xs leading-relaxed">
+              <p className="text-slate-300 text-xs leading-relaxed">
                 Bridging talent and opportunity across Rwanda with modern, digital hiring solutions.
               </p>
-              <div className="flex items-start gap-2 text-slate-400 text-xs">
-                <HiLocationMarker className="text-blue-400 mt-0.5 flex-shrink-0 text-sm" />
+              <div className="flex items-start gap-2 text-slate-300 text-xs">
+                <HiLocationMarker className="text-emerald-400 mt-0.5 flex-shrink-0 text-sm" />
                 <span>Kigali, Rwanda — Serving the entire nation</span>
               </div>
             </div>
 
             {/* Quick Links */}
             <div>
-              <h3 className="text-base font-semibold text-slate-200 mb-2 relative inline-block">
+              <h3 className="text-sm font-bold text-white mb-2 relative inline-block">
                 Quick Links
-                <span className="absolute -bottom-1 left-0 w-6 h-0.5 bg-gradient-to-r from-blue-500 to-emerald-400 rounded-full" />
+                <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-blue-400 to-emerald-400 rounded-full" />
               </h3>
               <ul className="space-y-1 text-sm">
                 {quickLinks.map(({ name, path }) => (
                   <li key={name}>
                     <Link
                       to={path}
-                      className="text-slate-400 hover:text-blue-400 transition-all duration-300 flex items-center gap-2 group"
+                      className="text-slate-300 hover:text-white transition-all duration-300 flex items-center gap-2 group"
                     >
-                      <span className="w-0 group-hover:w-1 h-1 bg-gradient-to-r from-blue-500 to-emerald-400 rounded-full transition-all duration-300" />
-                      {name}
+                      <span className="w-0 group-hover:w-1.5 h-1.5 bg-gradient-to-r from-blue-400 to-emerald-400 rounded-full transition-all duration-300" />
+                      <span className="group-hover:translate-x-0.5 transition-transform">{name}</span>
                     </Link>
                   </li>
                 ))}
@@ -102,53 +99,53 @@ export default function Footer() {
 
             {/* Resources */}
             <div>
-              <h3 className="text-base font-semibold text-slate-200 mb-2 relative inline-block">
+              <h3 className="text-sm font-bold text-white mb-2 relative inline-block">
                 Resources
-                <span className="absolute -bottom-1 left-0 w-6 h-0.5 bg-gradient-to-r from-blue-500 to-emerald-400 rounded-full" />
+                <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-blue-400 to-emerald-400 rounded-full" />
               </h3>
               <ul className="space-y-1 text-sm">
                 {resources.map(({ name, path, icon: Icon }) => (
                   <li key={name}>
                     <Link
                       to={path}
-                      className="text-slate-400 hover:text-blue-400 transition-all duration-300 flex items-center gap-2 group"
+                      className="text-slate-300 hover:text-white transition-all duration-300 flex items-center gap-2 group"
                     >
-                      <Icon className="text-xs group-hover:scale-110 transition-transform" />
-                      {name}
+                      <Icon className="text-emerald-400 group-hover:scale-110 transition-transform" />
+                      <span className="group-hover:translate-x-0.5 transition-transform">{name}</span>
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Connect */}
+            {/* Connect – vibrant interactive area */}
             <div>
-              <h3 className="text-base font-semibold text-slate-200 mb-2 relative inline-block">
+              <h3 className="text-sm font-bold text-white mb-2 relative inline-block">
                 Connect
-                <span className="absolute -bottom-1 left-0 w-6 h-0.5 bg-gradient-to-r from-blue-500 to-emerald-400 rounded-full" />
+                <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-blue-400 to-emerald-400 rounded-full" />
               </h3>
-              <div className="space-y-1 mb-2 text-sm">
+              <div className="space-y-1 mb-3 text-sm">
                 {contacts.map(({ href, icon: Icon, text }) => (
                   <a
                     key={href}
                     href={href}
-                    className="flex items-center gap-3 text-slate-400 hover:text-blue-400 transition-all duration-300 group"
+                    className="flex items-center gap-3 text-slate-300 hover:text-white transition-all duration-300 group"
                   >
-                    <div className="p-1 rounded-lg bg-blue-600/10 group-hover:bg-blue-600/20 transition-colors">
-                      <Icon size={14} className="text-blue-400" />
+                    <div className="p-1.5 rounded-lg bg-white/10 group-hover:bg-gradient-to-r group-hover:from-blue-500/30 group-hover:to-emerald-500/30 transition-all">
+                      <Icon size={14} className="text-emerald-400 group-hover:text-white" />
                     </div>
-                    <span className="text-xs">{text}</span>
+                    <span className="text-xs group-hover:translate-x-0.5 transition-transform">{text}</span>
                   </a>
                 ))}
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 {socials.map(({ href, icon: Icon, label }) => (
                   <a
                     key={label}
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-1.5 rounded-xl bg-slate-800 text-blue-400 hover:bg-gradient-to-r hover:from-blue-600 hover:to-emerald-500 hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-600/20"
+                    className="p-2 rounded-xl bg-white/5 text-blue-400 hover:bg-gradient-to-r hover:from-blue-500 hover:to-emerald-500 hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/30"
                     aria-label={label}
                   >
                     <Icon size={14} />
@@ -158,14 +155,14 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Bottom legal links */}
-          <div className="pt-3 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-2 text-xs">
+          {/* Bottom legal links – with glowing separator */}
+          <div className="pt-3 mt-1 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-2 text-xs">
             <div className="text-slate-400 text-center md:text-left">
               © {new Date().getFullYear()} JobFinder Rwanda – Connecting talent with opportunity.
             </div>
             <div className="flex gap-5">
               {legalLinks.map(({ name, path }) => (
-                <Link key={name} to={path} className="text-slate-400 hover:text-blue-400 transition-colors">
+                <Link key={name} to={path} className="text-slate-400 hover:text-emerald-400 transition-colors">
                   {name}
                 </Link>
               ))}
@@ -173,18 +170,18 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom gradient overlay */}
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-blue-600/5 via-transparent to-transparent" />
+        {/* Top glow overlay */}
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-transparent via-indigo-950/10 to-transparent" />
       </footer>
 
-      {/* Back to top button with modern gradient */}
+      {/* Back to top button – premium neon style */}
       {show && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-6 right-6 z-50 p-2 bg-gradient-to-br from-blue-600 to-emerald-500 text-white rounded-full shadow-lg shadow-blue-600/30 hover:scale-110 transition-all duration-300 group"
+          className="fixed bottom-6 right-6 z-50 p-3 bg-gradient-to-r from-blue-600 to-emerald-500 text-white rounded-full shadow-lg shadow-blue-500/50 hover:scale-110 transition-all duration-300 group ring-2 ring-white/20"
           aria-label="Back to top"
         >
-          <FaArrowUp className="group-hover:-translate-y-0.5 transition-transform" size={14} />
+          <FaArrowUp className="group-hover:-translate-y-1 transition-transform" size={16} />
         </button>
       )}
     </>
