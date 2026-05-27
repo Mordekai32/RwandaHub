@@ -631,6 +631,30 @@ app.get('/api/admin/users', verifyToken, authorizeRoles('admin'), async (req, re
   }
 });
 
+// Admin update user (name & email) – needed for Edit feature
+app.put('/api/admin/users/:id', verifyToken, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const { name, email } = req.body;
+    if (!name || !email) {
+      return res.status(400).json({ message: 'Name and email are required' });
+    }
+    // Check if email is already used by another user
+    const existingUser = await User.findOne({ email, _id: { $ne: req.params.id } });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already in use by another user' });
+    }
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { name, email },
+      { new: true }
+    ).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 app.delete('/api/admin/users/:id', verifyToken, authorizeRoles('admin'), async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
@@ -638,6 +662,21 @@ app.delete('/api/admin/users/:id', verifyToken, authorizeRoles('admin'), async (
     await Job.deleteMany({ createdBy: req.params.id });
     await Application.deleteMany({ userId: req.params.id });
     res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ========== ADDED: Admin update user role ==========
+app.patch('/api/admin/users/:id/role', verifyToken, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const { role } = req.body;
+    if (!role || !['jobseeker', 'employer', 'admin'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role. Must be jobseeker, employer, or admin.' });
+    }
+    const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
