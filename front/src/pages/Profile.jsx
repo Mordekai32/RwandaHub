@@ -9,7 +9,7 @@ export default function Profile() {
   const [profilePreview, setProfilePreview] = useState('');
   const [uploading, setUploading] = useState(false);
   const [company, setCompany] = useState(null);
-  const [companyForm, setCompanyForm] = useState({ name: '', description: '', website: '', logo: null });
+  const [companyForm, setCompanyForm] = useState({ name: '', description: '', website: '', phone: '', logo: null });
   const [companyLogoPreview, setCompanyLogoPreview] = useState('');
   const [uploadingCompany, setUploadingCompany] = useState(false);
 
@@ -25,6 +25,7 @@ export default function Profile() {
               name: res.data.name,
               description: res.data.description || '',
               website: res.data.website || '',
+              phone: res.data.phone || '',
               logo: null
             });
             if (res.data.logo) setCompanyLogoPreview(`http://localhost:5000${res.data.logo}`);
@@ -54,9 +55,7 @@ export default function Profile() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       alert('Profile updated successfully');
-      // Update auth context if needed
       if (response.data.user) {
-        // Optionally refresh user in context
         window.location.reload();
       }
     } catch (err) {
@@ -82,6 +81,7 @@ export default function Profile() {
       formData.append('name', companyForm.name);
       formData.append('description', companyForm.description);
       formData.append('website', companyForm.website);
+      formData.append('phone', companyForm.phone);
       if (companyForm.logo) formData.append('logo', companyForm.logo);
       
       if (company) {
@@ -108,7 +108,6 @@ export default function Profile() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">User Profile</h2>
         <form onSubmit={updateProfile} className="space-y-4">
-          {/* Profile Image Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
             <div className="flex items-center space-x-4">
@@ -162,7 +161,6 @@ export default function Profile() {
             {company ? 'Edit Company' : 'Create Company Profile'}
           </h2>
           <form onSubmit={createOrUpdateCompany} className="space-y-4">
-            {/* Company Logo Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Company Logo</label>
               <div className="flex items-center space-x-4">
@@ -205,6 +203,18 @@ export default function Profile() {
                 type="url"
                 value={companyForm.website}
                 onChange={(e) => setCompanyForm({ ...companyForm, website: e.target.value })}
+                className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            {/* New Phone Number Field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+              <input
+                type="tel"
+                value={companyForm.phone}
+                onChange={(e) => setCompanyForm({ ...companyForm, phone: e.target.value })}
+                placeholder="+250 7XX XXX XXX"
                 className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>

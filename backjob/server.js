@@ -73,12 +73,14 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+// ✅ Added 'phone' field to company schema
 const companySchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
   website: { type: String },
+  phone: { type: String, default: null },           // <-- NEW: phone number
   logo: { type: String, default: null },
-  employeeCount: { type: String, default: null }, // e.g., "1-10", "50-100", "500+"
+  employeeCount: { type: String, default: null },
   ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
   createdAt: { type: Date, default: Date.now },
 });
@@ -218,13 +220,13 @@ app.put('/api/profile', verifyToken, uploadProfileImage.single('profileImage'), 
   }
 });
 
-// Company Profile Routes (Employer only)
+// Company Profile Routes (Employer only) – ✅ includes 'phone'
 app.post('/api/company', verifyToken, authorizeRoles('employer'), uploadLogo.single('logo'), async (req, res) => {
   try {
-    const { name, description, website, employeeCount } = req.body;
+    const { name, description, website, phone, employeeCount } = req.body;
     const existing = await Company.findOne({ ownerId: req.user.id });
     if (existing) return res.status(400).json({ message: 'Company profile already exists' });
-    const companyData = { name, description, website, employeeCount, ownerId: req.user.id };
+    const companyData = { name, description, website, phone, employeeCount, ownerId: req.user.id };
     if (req.file) companyData.logo = `/uploads/companies/${req.file.filename}`;
     const company = await Company.create(companyData);
     res.status(201).json(company);
@@ -235,8 +237,8 @@ app.post('/api/company', verifyToken, authorizeRoles('employer'), uploadLogo.sin
 
 app.put('/api/company', verifyToken, authorizeRoles('employer'), uploadLogo.single('logo'), async (req, res) => {
   try {
-    const { name, description, website, employeeCount } = req.body;
-    const updateData = { name, description, website, employeeCount };
+    const { name, description, website, phone, employeeCount } = req.body;
+    const updateData = { name, description, website, phone, employeeCount };
     if (req.file) updateData.logo = `/uploads/companies/${req.file.filename}`;
     const company = await Company.findOneAndUpdate(
       { ownerId: req.user.id },
@@ -255,6 +257,16 @@ app.get('/api/company', verifyToken, authorizeRoles('employer'), async (req, res
     const company = await Company.findOne({ ownerId: req.user.id });
     if (!company) return res.status(404).json({ message: 'Company not found' });
     res.json(company);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// PUBLIC: Get all companies (now includes phone)
+app.get('/api/companies', async (req, res) => {
+  try {
+    const companies = await Company.find().populate('ownerId', 'name email');
+    res.json(companies);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
