@@ -27,30 +27,31 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      {/* Animated blurred shapes */}
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 relative overflow-hidden">
+      {/* Animated blurred shapes – modern energy */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-blue-400/20 to-emerald-400/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-slate-300/20 to-blue-400/20 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-blue-500/30 to-emerald-500/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-indigo-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse delay-700" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
       <div className="relative w-full max-w-md">
-        {/* Glassmorphic card */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-8 md:p-10">
+        {/* Glassmorphic card – premium dark */}
+        <div className="bg-white/5 backdrop-blur-sm rounded-2xl shadow-xl border border-white/10 p-8 md:p-10">
           {/* Brand header */}
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
               <span className="text-white font-serif text-xl">A</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-800">Welcome back</h1>
-              <p className="text-sm text-slate-500">Sign in to your account</p>
+              <h1 className="text-2xl font-bold text-white">Welcome back</h1>
+              <p className="text-sm text-slate-300">Sign in to your account</p>
             </div>
           </div>
 
-          {/* Error message */}
+          {/* Error message – glass red */}
           {error && (
-            <div className="mb-6 flex items-center gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+            <div className="mb-6 flex items-center gap-2 text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 backdrop-blur-sm">
               <FiAlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{error}</span>
             </div>
@@ -59,11 +60,11 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email field */}
             <div>
-              <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">
+              <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">
                 Email
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-emerald-400">
                   <MdEmail className="w-4 h-4" />
                 </div>
                 <input
@@ -72,7 +73,7 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
+                  className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-transparent transition"
                   placeholder="you@example.com"
                   autoComplete="email"
                 />
@@ -82,15 +83,15 @@ export default function Login() {
             {/* Password field */}
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wide text-slate-300">
                   Password
                 </label>
-                <Link to="/forgot-password" className="text-xs text-blue-600 hover:text-blue-700 transition">
+                <Link to="/forgot-password" className="text-xs text-emerald-400 hover:text-emerald-300 transition">
                   Forgot password?
                 </Link>
               </div>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-emerald-400">
                   <MdLock className="w-4 h-4" />
                 </div>
                 <input
@@ -99,7 +100,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
+                  className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-transparent transition"
                   placeholder="••••••••"
                   autoComplete="current-password"
                 />
@@ -129,17 +130,17 @@ export default function Login() {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200"></div>
+              <div className="w-full border-t border-white/10"></div>
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-white/80 px-2 text-slate-400">or continue with</span>
+              <span className="bg-white/5 backdrop-blur-sm px-2 text-slate-400">or continue with</span>
             </div>
           </div>
 
-          {/* Google SSO button */}
+          {/* Google SSO button – glass style */}
           <button
             type="button"
-            className="w-full flex items-center justify-center gap-2 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 bg-white/50 hover:bg-slate-50 transition-colors duration-200"
+            className="w-full flex items-center justify-center gap-2 py-2.5 border border-white/10 rounded-lg text-sm font-medium text-slate-300 bg-white/5 hover:bg-white/10 transition-colors duration-200"
             onClick={() => {/* Implement Google OAuth */}}
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -152,9 +153,9 @@ export default function Login() {
           </button>
 
           {/* Sign up link */}
-          <p className="mt-6 text-center text-sm text-slate-500">
+          <p className="mt-6 text-center text-sm text-slate-300">
             Don't have an account?{' '}
-            <Link to="/register" className="font-medium text-blue-600 hover:text-blue-700 transition">
+            <Link to="/register" className="font-medium text-emerald-400 hover:text-emerald-300 transition">
               Create one
             </Link>
           </p>
