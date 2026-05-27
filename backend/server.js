@@ -204,9 +204,11 @@ const PaymentMethod = mongoose.model('PaymentMethod', paymentMethodSchema);
 const AnalyticsLog = mongoose.model('AnalyticsLog', analyticsLogSchema);
 
 // ========== MongoDB Connection ==========
+// Read the connection string from .env file (MONGODB_URI)
+// Make sure you have set MONGODB_URI in .env with your real password
 mongoose.connect(process.env.MONGODB_URI)
   .then(async () => {
-    console.log('MongoDB connected');
+    console.log('✅ MongoDB Atlas connected');
     const adminExists = await User.findOne({ role: 'admin' });
     if (!adminExists) {
       const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
@@ -252,7 +254,7 @@ const checkEmployerCompany = async (userId) => {
   return company;
 };
 
-// ========== Existing Auth Routes ==========
+// ========== Auth Routes ==========
 app.post('/api/register', async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -362,7 +364,7 @@ app.get('/api/companies', async (req, res) => {
   }
 });
 
-// ========== Job Routes (with enhanced employer management) ==========
+// ========== Job Routes ==========
 app.get('/api/jobs', async (req, res) => {
   try {
     const { title, location, minSalary, maxSalary } = req.query;
@@ -377,7 +379,6 @@ app.get('/api/jobs', async (req, res) => {
       .populate('createdBy', 'name email')
       .sort({ createdAt: -1 });
     
-    // Add applications count for each job
     const jobsWithCount = await Promise.all(jobs.map(async (job) => {
       const jobObj = job.toObject();
       jobObj.companyLogo = job.companyId?.logo || null;
@@ -413,14 +414,10 @@ app.get('/api/jobs/:id', async (req, res) => {
   }
 });
 
-// Employer posts a job
 app.post('/api/jobs', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const company = await checkEmployerCompany(req.user.id);
-    const { 
-      title, location, salary, description,
-      applicationInstructions, applicationEmail, applicationUrl 
-    } = req.body;
+    const { title, location, salary, description, applicationInstructions, applicationEmail, applicationUrl } = req.body;
     
     const job = await Job.create({
       title,
@@ -455,9 +452,7 @@ app.delete('/api/jobs/:id', verifyToken, async (req, res) => {
   }
 });
 
-// ========== ENHANCED EMPLOYER JOB MANAGEMENT ==========
-
-// Get employer's jobs with applications count
+// ========== Employer Job Management ==========
 app.get('/api/employer/jobs', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const jobs = await Job.find({ createdBy: req.user.id })
@@ -479,7 +474,6 @@ app.get('/api/employer/jobs', verifyToken, authorizeRoles('employer'), async (re
   }
 });
 
-// Get single job for editing (employer only)
 app.get('/api/employer/jobs/:id', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -493,7 +487,6 @@ app.get('/api/employer/jobs/:id', verifyToken, authorizeRoles('employer'), async
   }
 });
 
-// Update job (employer only)
 app.put('/api/employer/jobs/:id', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -504,7 +497,6 @@ app.put('/api/employer/jobs/:id', verifyToken, authorizeRoles('employer'), async
     
     const { title, location, salary, description, applicationInstructions, applicationEmail, applicationUrl } = req.body;
     
-    // Update only allowed fields
     job.title = title || job.title;
     job.location = location || job.location;
     job.salary = salary || job.salary;
@@ -513,17 +505,13 @@ app.put('/api/employer/jobs/:id', verifyToken, authorizeRoles('employer'), async
     job.applicationEmail = applicationEmail !== undefined ? applicationEmail : job.applicationEmail;
     job.applicationUrl = applicationUrl !== undefined ? applicationUrl : job.applicationUrl;
     
-    // Reset status to pending for re-approval if desired? Optional: set status = 'pending' 
-    // but we'll keep current status unless employer wants to resubmit. Usually edit keeps status.
     await job.save();
-    
     res.json(job);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Duplicate job
 app.post('/api/employer/jobs/:id/duplicate', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const originalJob = await Job.findById(req.params.id);
@@ -534,7 +522,6 @@ app.post('/api/employer/jobs/:id/duplicate', verifyToken, authorizeRoles('employ
     
     const company = await checkEmployerCompany(req.user.id);
     
-    // Create duplicate
     const duplicatedJob = new Job({
       title: `${originalJob.title} (Copy)`,
       company: originalJob.company,
@@ -543,7 +530,7 @@ app.post('/api/employer/jobs/:id/duplicate', verifyToken, authorizeRoles('employ
       salary: originalJob.salary,
       description: originalJob.description,
       createdBy: req.user.id,
-      status: 'pending', // Always pending for review
+      status: 'pending',
       featured: false,
       applicationInstructions: originalJob.applicationInstructions,
       applicationEmail: originalJob.applicationEmail,
@@ -631,14 +618,12 @@ app.get('/api/admin/users', verifyToken, authorizeRoles('admin'), async (req, re
   }
 });
 
-// Admin update user (name & email) – needed for Edit feature
 app.put('/api/admin/users/:id', verifyToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const { name, email } = req.body;
     if (!name || !email) {
       return res.status(400).json({ message: 'Name and email are required' });
     }
-    // Check if email is already used by another user
     const existingUser = await User.findOne({ email, _id: { $ne: req.params.id } });
     if (existingUser) {
       return res.status(400).json({ message: 'Email already in use by another user' });
@@ -667,7 +652,6 @@ app.delete('/api/admin/users/:id', verifyToken, authorizeRoles('admin'), async (
   }
 });
 
-// ========== ADDED: Admin update user role ==========
 app.patch('/api/admin/users/:id/role', verifyToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const { role } = req.body;
@@ -720,7 +704,7 @@ app.delete('/api/admin/jobs/:id', verifyToken, authorizeRoles('admin'), async (r
   }
 });
 
-// ========== EMPLOYER ADVERTISEMENT ROUTES (keep existing) ==========
+// ========== Advertisement Routes ==========
 app.post('/api/listings', verifyToken, authorizeRoles('employer'), uploadListingImages.array('images', 5), async (req, res) => {
   try {
     const company = await checkEmployerCompany(req.user.id);
