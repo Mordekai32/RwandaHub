@@ -99,7 +99,7 @@ const companySchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Job model – ADDED application instructions fields
+// Job model – with application instructions fields
 const jobSchema = new mongoose.Schema({
   title: { type: String, required: true },
   company: { type: String, required: true },
@@ -111,7 +111,6 @@ const jobSchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   featured: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
-  // NEW: How to apply instructions
   applicationInstructions: { type: String, default: "Click the 'Apply Now' button below and fill out the application form." },
   applicationEmail: { type: String, default: null },
   applicationUrl: { type: String, default: null }
@@ -126,9 +125,7 @@ const applicationSchema = new mongoose.Schema({
   appliedAt: { type: Date, default: Date.now },
 });
 
-// ---------- NEW MODELS FOR ADVERTISEMENTS ----------
-
-// Listing (product, service, training, etc.)
+// ---------- Models for Advertisements ----------
 const listingSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
@@ -147,7 +144,6 @@ const listingSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Order (when someone buys a product/service through the marketplace)
 const orderSchema = new mongoose.Schema({
   listingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Listing', required: true },
   buyerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -158,7 +154,6 @@ const orderSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Message (inquiries from customers)
 const messageSchema = new mongoose.Schema({
   listingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Listing', required: true },
   from: { type: String, required: true },
@@ -168,7 +163,6 @@ const messageSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 });
 
-// Invoice / Billing record for promotions
 const invoiceSchema = new mongoose.Schema({
   companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true },
   listingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Listing' },
@@ -180,7 +174,6 @@ const invoiceSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Payment method (stored tokenized - for demo we store last4)
 const paymentMethodSchema = new mongoose.Schema({
   companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true },
   last4: { type: String, required: true },
@@ -191,7 +184,6 @@ const paymentMethodSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Analytics log for daily tracking
 const analyticsLogSchema = new mongoose.Schema({
   listingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Listing', required: true },
   date: { type: Date, default: Date.now },
@@ -370,7 +362,7 @@ app.get('/api/companies', async (req, res) => {
   }
 });
 
-// ========== Updated Job Routes with Application Instructions ==========
+// ========== Job Routes (with enhanced employer management) ==========
 app.get('/api/jobs', async (req, res) => {
   try {
     const { title, location, minSalary, maxSalary } = req.query;
@@ -385,15 +377,17 @@ app.get('/api/jobs', async (req, res) => {
       .populate('createdBy', 'name email')
       .sort({ createdAt: -1 });
     
-    const jobsWithDetails = jobs.map(job => {
+    // Add applications count for each job
+    const jobsWithCount = await Promise.all(jobs.map(async (job) => {
       const jobObj = job.toObject();
       jobObj.companyLogo = job.companyId?.logo || null;
       jobObj.employeeCount = job.companyId?.employeeCount || null;
       jobObj.phone = job.companyId?.phone || null;
+      jobObj.applicationsCount = await Application.countDocuments({ jobId: job._id });
       return jobObj;
-    });
+    }));
     
-    res.json(jobsWithDetails);
+    res.json(jobsWithCount);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -412,13 +406,14 @@ app.get('/api/jobs/:id', async (req, res) => {
     jobObj.companyLogo = job.companyId?.logo || null;
     jobObj.employeeCount = job.companyId?.employeeCount || null;
     jobObj.phone = job.companyId?.phone || null;
+    jobObj.applicationsCount = await Application.countDocuments({ jobId: job._id });
     res.json(jobObj);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Employer posts a job – now accepts application instructions
+// Employer posts a job
 app.post('/api/jobs', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const company = await checkEmployerCompany(req.user.id);
@@ -460,19 +455,103 @@ app.delete('/api/jobs/:id', verifyToken, async (req, res) => {
   }
 });
 
+// ========== ENHANCED EMPLOYER JOB MANAGEMENT ==========
+
+// Get employer's jobs with applications count
 app.get('/api/employer/jobs', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const jobs = await Job.find({ createdBy: req.user.id })
       .populate('companyId', 'logo employeeCount phone')
       .sort({ createdAt: -1 });
-    const jobsWithDetails = jobs.map(job => {
+    
+    const jobsWithCount = await Promise.all(jobs.map(async (job) => {
       const jobObj = job.toObject();
       jobObj.companyLogo = job.companyId?.logo || null;
       jobObj.employeeCount = job.companyId?.employeeCount || null;
       jobObj.phone = job.companyId?.phone || null;
+      jobObj.applicationsCount = await Application.countDocuments({ jobId: job._id });
       return jobObj;
+    }));
+    
+    res.json(jobsWithCount);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get single job for editing (employer only)
+app.get('/api/employer/jobs/:id', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ message: 'Job not found' });
+    if (job.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    res.json(job);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update job (employer only)
+app.put('/api/employer/jobs/:id', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ message: 'Job not found' });
+    if (job.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    
+    const { title, location, salary, description, applicationInstructions, applicationEmail, applicationUrl } = req.body;
+    
+    // Update only allowed fields
+    job.title = title || job.title;
+    job.location = location || job.location;
+    job.salary = salary || job.salary;
+    job.description = description || job.description;
+    job.applicationInstructions = applicationInstructions || job.applicationInstructions;
+    job.applicationEmail = applicationEmail !== undefined ? applicationEmail : job.applicationEmail;
+    job.applicationUrl = applicationUrl !== undefined ? applicationUrl : job.applicationUrl;
+    
+    // Reset status to pending for re-approval if desired? Optional: set status = 'pending' 
+    // but we'll keep current status unless employer wants to resubmit. Usually edit keeps status.
+    await job.save();
+    
+    res.json(job);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Duplicate job
+app.post('/api/employer/jobs/:id/duplicate', verifyToken, authorizeRoles('employer'), async (req, res) => {
+  try {
+    const originalJob = await Job.findById(req.params.id);
+    if (!originalJob) return res.status(404).json({ message: 'Job not found' });
+    if (originalJob.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    
+    const company = await checkEmployerCompany(req.user.id);
+    
+    // Create duplicate
+    const duplicatedJob = new Job({
+      title: `${originalJob.title} (Copy)`,
+      company: originalJob.company,
+      companyId: originalJob.companyId,
+      location: originalJob.location,
+      salary: originalJob.salary,
+      description: originalJob.description,
+      createdBy: req.user.id,
+      status: 'pending', // Always pending for review
+      featured: false,
+      applicationInstructions: originalJob.applicationInstructions,
+      applicationEmail: originalJob.applicationEmail,
+      applicationUrl: originalJob.applicationUrl
     });
-    res.json(jobsWithDetails);
+    
+    await duplicatedJob.save();
+    res.status(201).json(duplicatedJob);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -602,9 +681,7 @@ app.delete('/api/admin/jobs/:id', verifyToken, authorizeRoles('admin'), async (r
   }
 });
 
-// ========== EMPLOYER ADVERTISEMENT ROUTES ==========
-
-// ---- Listing Management ----
+// ========== EMPLOYER ADVERTISEMENT ROUTES (keep existing) ==========
 app.post('/api/listings', verifyToken, authorizeRoles('employer'), uploadListingImages.array('images', 5), async (req, res) => {
   try {
     const company = await checkEmployerCompany(req.user.id);
@@ -690,7 +767,6 @@ app.delete('/api/listings/:id', verifyToken, authorizeRoles('employer'), async (
   }
 });
 
-// ---- Track Clicks ----
 app.post('/api/listings/:id/click', async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.id);
@@ -708,7 +784,6 @@ app.post('/api/listings/:id/click', async (req, res) => {
   }
 });
 
-// ---- Analytics ----
 app.get('/api/analytics', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const company = await Company.findOne({ ownerId: req.user.id });
@@ -752,7 +827,6 @@ app.get('/api/analytics/:listingId', verifyToken, authorizeRoles('employer'), as
   }
 });
 
-// ---- Promote Listing (paid promotion) ----
 app.post('/api/promote', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const { listingId, budget, durationDays } = req.body;
@@ -775,7 +849,6 @@ app.post('/api/promote', verifyToken, authorizeRoles('employer'), async (req, re
       status: 'pending',
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
-    // For demo: auto-pay
     invoice.status = 'paid';
     invoice.paidAt = new Date();
     await invoice.save();
@@ -788,7 +861,6 @@ app.post('/api/promote', verifyToken, authorizeRoles('employer'), async (req, re
   }
 });
 
-// ---- Orders ----
 app.post('/api/orders', async (req, res) => {
   try {
     const { listingId, buyerName, buyerEmail } = req.body;
@@ -844,7 +916,6 @@ app.patch('/api/orders/:id/status', verifyToken, authorizeRoles('employer'), asy
   }
 });
 
-// ---- Messages ----
 app.post('/api/messages', async (req, res) => {
   try {
     const { listingId, from, message } = req.body;
@@ -888,7 +959,6 @@ app.post('/api/messages/:id/reply', verifyToken, authorizeRoles('employer'), asy
   }
 });
 
-// ---- Billing & Payment Methods ----
 app.get('/api/payment-methods', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const company = await Company.findOne({ ownerId: req.user.id });
@@ -945,7 +1015,6 @@ app.get('/api/invoices', verifyToken, authorizeRoles('employer'), async (req, re
   }
 });
 
-// ---- Public Marketplace Feed ----
 app.get('/api/marketplace/listings', async (req, res) => {
   try {
     const { type, category, minPrice, maxPrice } = req.query;
@@ -963,7 +1032,7 @@ app.get('/api/marketplace/listings', async (req, res) => {
   }
 });
 
-// ---- Settings Routes ----
+// ========== Settings Routes ==========
 app.put('/api/settings/business-profile', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const { name, description, website, phone, employeeCount } = req.body;
