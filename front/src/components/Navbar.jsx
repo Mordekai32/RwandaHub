@@ -41,13 +41,13 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-indigo-100/50 shadow-sm transition-all duration-300">
+      <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/50 shadow-sm transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo */}
+            {/* Logo with modern blue → emerald gradient */}
             <Link
               to="/"
-              className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 to-teal-500 bg-clip-text text-transparent hover:opacity-80 transition-all duration-300"
+              className="text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent hover:opacity-80 transition-all duration-300"
             >
               JobFinder Rwanda
             </Link>
@@ -63,21 +63,21 @@ export default function Navbar() {
                     to={item.path}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       active
-                        ? 'bg-indigo-50 text-indigo-700 shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-indigo-600'
+                        ? 'bg-blue-50 text-blue-700 shadow-sm'
+                        : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600'
                     }`}
                   >
-                    <Icon size={16} className={active ? 'text-indigo-500' : ''} />
+                    <Icon size={16} className={active ? 'text-blue-500' : ''} />
                     {item.name}
                   </Link>
                 );
               })}
 
-              {/* Post Job button (only for employer) */}
+              {/* Post Job button (only for employer) - modern gradient */}
               {user?.role === 'employer' && (
                 <Link
                   to="/employer/post"
-                  className="ml-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-5 py-2 rounded-full text-sm font-semibold shadow-md hover:from-indigo-700 hover:to-indigo-600 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center gap-2"
+                  className="ml-2 bg-gradient-to-r from-blue-600 to-emerald-500 text-white px-5 py-2 rounded-full text-sm font-semibold shadow-md shadow-blue-500/25 hover:from-blue-700 hover:to-emerald-600 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center gap-2"
                 >
                   <FaPlusCircle size={14} />
                   Post Job
@@ -91,12 +91,12 @@ export default function Navbar() {
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                     className="flex items-center gap-2 focus:outline-none group"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-teal-500 flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-emerald-500 flex items-center justify-center text-white font-semibold text-sm shadow-md">
                       {user.name?.charAt(0).toUpperCase() || 'U'}
                     </div>
                     <FaChevronDown
                       size={12}
-                      className={`text-gray-500 transition-transform duration-200 ${
+                      className={`text-slate-500 transition-transform duration-200 ${
                         userDropdownOpen ? 'rotate-180' : ''
                       }`}
                     />
@@ -108,11 +108,11 @@ export default function Navbar() {
                         className="fixed inset-0 z-10"
                         onClick={() => setUserDropdownOpen(false)}
                       />
-                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-20 animate-fadeIn">
-                        <div className="px-4 py-2 border-b border-gray-100">
-                          <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                          <p className="text-xs text-gray-500">{user.email}</p>
-                          <span className="inline-block mt-1 text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full capitalize">
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-20 animate-fadeIn">
+                        <div className="px-4 py-2 border-b border-slate-100">
+                          <p className="text-sm font-medium text-slate-900">{user.name}</p>
+                          <p className="text-xs text-slate-500">{user.email}</p>
+                          <span className="inline-block mt-1 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full capitalize">
                             {user.role}
                           </span>
                         </div>
@@ -134,13 +134,13 @@ export default function Navbar() {
                 <div className="flex items-center gap-3 ml-4">
                   <Link
                     to="/login"
-                    className="text-gray-600 font-medium hover:text-indigo-600 transition px-3 py-2"
+                    className="text-slate-600 font-medium hover:text-blue-600 transition px-3 py-2"
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
-                    className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-5 py-2 rounded-full text-sm font-semibold shadow-md hover:from-indigo-700 hover:to-indigo-600 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+                    className="bg-gradient-to-r from-blue-600 to-emerald-500 text-white px-5 py-2 rounded-full text-sm font-semibold shadow-md shadow-blue-500/25 hover:from-blue-700 hover:to-emerald-600 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
                   >
                     Get Started
                   </Link>
@@ -151,7 +151,7 @@ export default function Navbar() {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 focus:outline-none transition"
+              className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none transition"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
@@ -174,10 +174,10 @@ export default function Navbar() {
       >
         <div className="flex flex-col h-full">
           {/* Sidebar header */}
-          <div className="p-5 border-b border-gray-100">
+          <div className="p-5 border-b border-slate-100">
             <Link
               to="/"
-              className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-teal-500 bg-clip-text text-transparent"
+              className="text-xl font-bold bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent"
               onClick={handleLinkClick}
             >
               JobFinder Rwanda
@@ -196,8 +196,8 @@ export default function Navbar() {
                   onClick={handleLinkClick}
                   className={`flex items-center gap-3 px-5 py-3 text-sm font-medium transition ${
                     active
-                      ? 'bg-indigo-50 text-indigo-700 border-r-2 border-indigo-500'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-indigo-600'
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600'
                   }`}
                 >
                   <Icon size={18} />
@@ -209,14 +209,14 @@ export default function Navbar() {
 
           {/* User info & logout (if logged in) */}
           {user ? (
-            <div className="p-4 border-t border-gray-100">
+            <div className="p-4 border-t border-slate-100">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-teal-500 flex items-center justify-center text-white font-semibold">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-emerald-500 flex items-center justify-center text-white font-semibold">
                   {user.name?.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-800">{user.name}</p>
-                  <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+                  <p className="text-sm font-medium text-slate-800">{user.name}</p>
+                  <p className="text-xs text-slate-500 capitalize">{user.role}</p>
                 </div>
               </div>
               <button
@@ -231,18 +231,18 @@ export default function Navbar() {
               </button>
             </div>
           ) : (
-            <div className="p-4 border-t border-gray-100 space-y-2">
+            <div className="p-4 border-t border-slate-100 space-y-2">
               <Link
                 to="/login"
                 onClick={handleLinkClick}
-                className="block w-full text-center bg-indigo-50 text-indigo-600 py-2 rounded-lg text-sm font-medium hover:bg-indigo-100 transition"
+                className="block w-full text-center bg-slate-50 text-slate-700 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 transition"
               >
                 Login
               </Link>
               <Link
                 to="/register"
                 onClick={handleLinkClick}
-                className="block w-full text-center bg-gradient-to-r from-indigo-600 to-indigo-500 text-white py-2 rounded-lg text-sm font-semibold shadow-md hover:shadow-lg transition"
+                className="block w-full text-center bg-gradient-to-r from-blue-600 to-emerald-500 text-white py-2 rounded-lg text-sm font-semibold shadow-md hover:shadow-lg transition"
               >
                 Get Started
               </Link>
