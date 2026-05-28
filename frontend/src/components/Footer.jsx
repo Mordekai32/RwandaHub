@@ -2,78 +2,78 @@ import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
-    <footer className="relative bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-slate-300">
-      {/* Decorative top border - modern emerald to sky gradient */}
-      <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500"></div>
+    <footer className="bg-[#0F172A] text-[#CBD5E1]">
+      {/* Decorative top border - Gray #334155 */}
+      <div className="absolute top-0 left-0 w-full h-0.5 bg-[#334155]"></div>
 
       <div className="container mx-auto px-4 py-3 md:py-4">
-        {/* Main footer grid - reduced gap */}
+        {/* Main footer grid */}
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-          {/* Brand & Description - tighter spacing */}
+          {/* Brand & Description */}
           <div className="space-y-1">
-            <h3 className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-sky-400 bg-clip-text text-transparent">
-               RwandaMarket
+            <h3 className="text-lg font-bold text-white">
+              RwandaMarket
             </h3>
-            <p className="text-slate-400 text-[11px] leading-tight">
+            <p className="text-[#CBD5E1] text-[11px] leading-tight">
               Rwanda's trusted online marketplace. Buy and sell safely.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-xs font-semibold text-slate-200 mb-1.5 relative inline-block after:content-[''] after:absolute after:bottom-[-3px] after:left-0 after:w-4 after:h-0.5 after:bg-emerald-500">
+            <h4 className="text-xs font-semibold text-white mb-1.5 relative inline-block after:content-[''] after:absolute after:bottom-[-3px] after:left-0 after:w-4 after:h-0.5 after:bg-[#2563EB]">
               Quick Links
             </h4>
             <ul className="space-y-1 text-[11px]">
-              <li><Link to="/" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">Home</Link></li>
-              <li><Link to="/products" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">All Products</Link></li>
+              <li><Link to="/" className="text-[#CBD5E1] hover:text-[#F97316] transition-colors duration-200">Home</Link></li>
+              <li><Link to="/products" className="text-[#CBD5E1] hover:text-[#F97316] transition-colors duration-200">All Products</Link></li>
             </ul>
           </div>
 
           {/* Categories */}
           <div>
-            <h4 className="text-xs font-semibold text-slate-200 mb-1.5 relative inline-block after:content-[''] after:absolute after:bottom-[-3px] after:left-0 after:w-4 after:h-0.5 after:bg-emerald-500">
+            <h4 className="text-xs font-semibold text-white mb-1.5 relative inline-block after:content-[''] after:absolute after:bottom-[-3px] after:left-0 after:w-4 after:h-0.5 after:bg-[#2563EB]">
               Categories
             </h4>
             <ul className="space-y-1 text-[11px]">
-              <li><Link to="/?category=Phones" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">📱 Phones</Link></li>
-              <li><Link to="/?category=Cars" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">🚗 Cars</Link></li>
-              <li><Link to="/?category=Clothes" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">👕 Clothes</Link></li>
-              <li><Link to="/?category=Electronics" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">💻 Electronics</Link></li>
+              <li><Link to="/?category=Phones" className="text-[#CBD5E1] hover:text-[#F97316] transition-colors duration-200">📱 Phones</Link></li>
+              <li><Link to="/?category=Cars" className="text-[#CBD5E1] hover:text-[#F97316] transition-colors duration-200">🚗 Cars</Link></li>
+              <li><Link to="/?category=Clothes" className="text-[#CBD5E1] hover:text-[#F97316] transition-colors duration-200">👕 Clothes</Link></li>
+              <li><Link to="/?category=Electronics" className="text-[#CBD5E1] hover:text-[#F97316] transition-colors duration-200">💻 Electronics</Link></li>
             </ul>
           </div>
 
           {/* Contact & Social */}
           <div>
-            <h4 className="text-xs font-semibold text-slate-200 mb-1.5 relative inline-block after:content-[''] after:absolute after:bottom-[-3px] after:left-0 after:w-4 after:h-0.5 after:bg-emerald-500">
+            <h4 className="text-xs font-semibold text-white mb-1.5 relative inline-block after:content-[''] after:absolute after:bottom-[-3px] after:left-0 after:w-4 after:h-0.5 after:bg-[#2563EB]">
               Connect
             </h4>
             <ul className="space-y-1 text-[11px]">
               <li className="flex items-start gap-1">
-                <span className="text-emerald-400">📍</span>
-                <span className="text-slate-400">Kigali, Rwanda</span>
+                <span className="text-[#2563EB]">📍</span>
+                <span className="text-[#CBD5E1]">Kigali, Rwanda</span>
               </li>
               <li className="flex items-start gap-1">
-                <span className="text-emerald-400">📞</span>
+                <span className="text-[#2563EB]">📞</span>
                 <div className="flex flex-col">
-                  <span className="text-slate-400">+250 796 381 024</span>
-                  <span className="text-slate-500 text-[10px]">+250 728 800 993</span>
+                  <span className="text-[#CBD5E1]">+250 796 381 024</span>
+                  <span className="text-[#CBD5E1]/70 text-[10px]">+250 728 800 993</span>
                 </div>
               </li>
               <li className="flex items-start gap-1">
-                <span className="text-emerald-400">✉️</span>
-                <a href="mailto:mordekai893@gmail.com" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">mordekai893@gmail.com</a>
+                <span className="text-[#2563EB]">✉️</span>
+                <a href="mailto:mordekai893@gmail.com" className="text-[#CBD5E1] hover:text-[#F97316] transition-colors duration-200">mordekai893@gmail.com</a>
               </li>
             </ul>
 
             <div className="mt-2">
-              <p className="text-slate-500 text-[9px] uppercase tracking-wider mb-1">Follow</p>
+              <p className="text-[#CBD5E1]/70 text-[9px] uppercase tracking-wider mb-1">Follow</p>
               <div className="flex gap-2">
                 <a 
                   href="https://instagram.com/blaise_320" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-slate-400 hover:text-pink-500 transition-colors duration-200"
+                  className="text-[#2563EB] hover:text-[#F97316] transition-colors duration-200"
                   aria-label="Instagram"
                 >
                   <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -84,7 +84,7 @@ export default function Footer() {
                   href="https://mordekai.vercel.app" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-slate-400 hover:text-sky-400 transition-colors duration-200"
+                  className="text-[#2563EB] hover:text-[#F97316] transition-colors duration-200"
                   aria-label="Portfolio"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,16 +96,16 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Copyright - reduced spacing */}
-        <div className="border-t border-slate-800/50 mt-3 pt-2 flex flex-col md:flex-row justify-between items-center gap-1 text-center text-slate-500 text-[9px]">
+        {/* Copyright */}
+        <div className="border-t border-[#334155] mt-3 pt-2 flex flex-col md:flex-row justify-between items-center gap-1 text-center text-[#CBD5E1]/70 text-[9px]">
           <p>© {new Date().getFullYear()} Rwanda Marketplace</p>
           <p className="flex items-center gap-1">
             Built with  by 
-            <a href="https://mordekai.vercel.app" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 transition-colors">Mordekai</a>
+            <a href="https://mordekai.vercel.app" target="_blank" rel="noopener noreferrer" className="text-[#CBD5E1] hover:text-[#F97316] transition-colors">Mordekai</a>
           </p>
           <div className="flex gap-2">
-            <Link to="/privacy" className="hover:text-emerald-400 transition-colors">Privacy</Link>
-            <Link to="/terms" className="hover:text-emerald-400 transition-colors">Terms</Link>
+            <Link to="/privacy" className="hover:text-[#F97316] transition-colors">Privacy</Link>
+            <Link to="/terms" className="hover:text-[#F97316] transition-colors">Terms</Link>
           </div>
         </div>
       </div>

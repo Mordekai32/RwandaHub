@@ -12,7 +12,6 @@ export default function HomePage() {
     try {
       const params = new URLSearchParams(filters).toString();
       const res = await API.get(`/products${params ? `?${params}` : ''}`);
-      // Ensure we always have an array
       setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error(err);
@@ -28,24 +27,23 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F8FAFC] to-[#E2E8F0]">
+      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#F97316] border-t-transparent"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#2563EB] border-t-transparent"></div>
           <p className="mt-4 text-[#0F172A] font-medium">Loading amazing products...</p>
         </div>
       </div>
     );
   }
 
-  // Filter out any falsy products or products missing an _id
   const validProducts = products.filter(p => p && p._id);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-white to-[#E2E8F0]">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <div className="container mx-auto px-4 py-8">
-        {/* Hero header with modern gradient text */}
+        {/* Hero header – gradient uses text dark, primary blue, secondary orange */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-[#0F172A] via-[#10B981] to-[#F97316] bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-[#0F172A] via-[#2563EB] to-[#F97316] bg-clip-text text-transparent">
             Rwanda Marketplace
           </h1>
           <p className="text-[#0F172A]/70 mt-2 text-lg">Buy & sell safely – local deals, trusted community</p>
@@ -55,7 +53,7 @@ export default function HomePage() {
 
         {validProducts.length === 0 ? (
           <div className="text-center py-16">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#10B981]/10 text-[#10B981] mb-4">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#2563EB]/10 text-[#2563EB] mb-4">
               <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
               </svg>
