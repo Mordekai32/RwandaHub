@@ -1,86 +1,355 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import { BrowserRouter, Routes, Route, Link, NavLink } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { useAuth } from './context/AuthContext';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import ProfilePage from './pages/ProfilePage';
+import SellerDashboardPage from './pages/SellerDashboardPage';
+import ProductFormPage from './pages/ProductFormPage';
+import ProductDetailPage from './pages/ProductDetailPage';
+import OrdersPage from './pages/OrdersPage';
+import MessagesPage from './pages/MessagesPage';
+import AdminPanel from './pages/AdminPanel';
 import ProtectedRoute from './components/ProtectedRoute';
+import Footer from './components/Footer';
 
-// Existing pages
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import JobList from './pages/JobList';
-import JobDetails from './pages/JobDetails';
-import PostJob from './pages/PostJob';
-import MyApplications from './pages/MyApplications';
-import EmployerJobs from './pages/EmployerJobs';
-import ApplicantsList from './pages/ApplicantsList';
-import Profile from './pages/Profile';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminUsers from './pages/AdminUsers';
-import AdminJobs from './pages/AdminJobs';
-import AdminAnalytics from './pages/AdminAnalytics';
+// Modern Navbar component with glassmorphism, avatar dropdown, and mobile sheet menu
+const Navbar = () => {
+  const { user, logout } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-// New pages for footer links
-import FindJobs from './pages/FindJobs';
-import Companies from './pages/Companies';
-import AboutUs from './pages/AboutUs';
-import HelpCenter from './pages/HelpCenter';
-import CareerTips from './pages/CareerTips';
-import Blog from './pages/Blog';
-import Support from './pages/Support';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsOfService from './pages/TermsOfService';
-import CookiePolicy from './pages/CookiePolicy';
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-function App() {
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
+  const handleLogout = async () => {
+    await logout();
+    setIsMobileMenuOpen(false);
+    setIsUserDropdownOpen(false);
+  };
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const toggleUserDropdown = () => setIsUserDropdownOpen(!isUserDropdownOpen);
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (user?.name) {
+      return user.name.charAt(0).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return 'U';
+  };
+
+  // Desktop link styles (pill shape)
+  const desktopLinkClass = ({ isActive }) =>
+    `px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+      isActive
+        ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 shadow-sm'
+        : 'text-slate-700 hover:bg-slate-100 hover:text-emerald-600'
+    }`;
+
+  // Mobile link styles
+  const mobileLinkClass = ({ isActive }) =>
+    `block w-full text-left px-4 py-3 rounded-xl transition-all duration-200 ${
+      isActive
+        ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 font-semibold'
+        : 'text-slate-700 hover:bg-slate-100 hover:text-emerald-600'
+    }`;
+
   return (
-    <AuthProvider>
+    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-lg shadow-slate-200/20">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 lg:h-18">
+          {/* Logo */}
+          <Link
+            to="/"
+            onClick={closeMobileMenu}
+            className="flex items-center gap-2 text-2xl font-extrabold tracking-tight transition-all duration-300 hover:scale-105"
+          >
+            <span className="text-3xl drop-shadow-md">🌾</span>
+            <span className="bg-gradient-to-r from-slate-800 via-emerald-600 to-amber-600 bg-clip-text text-transparent">
+              RwandaMarket
+            </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-1">
+            <NavLink to="/" className={desktopLinkClass} end>
+              Home
+            </NavLink>
+
+            {!user ? (
+              <>
+                <NavLink to="/login" className={desktopLinkClass}>
+                  Log in
+                </NavLink>
+                <NavLink
+                  to="/register"
+                  className="ml-2 px-5 py-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
+                >
+                  Sign up
+                </NavLink>
+              </>
+            ) : (
+              <div className="relative" ref={dropdownRef}>
+                {/* Avatar Button */}
+                <button
+                  onClick={toggleUserDropdown}
+                  className="flex items-center gap-2 ml-2 p-1.5 rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/50 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-semibold shadow-inner">
+                    {getUserInitials()}
+                  </div>
+                  <svg
+                    className={`w-4 h-4 text-slate-600 transition-transform duration-200 ${
+                      isUserDropdownOpen ? 'rotate-180' : ''
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Dropdown Menu */}
+                {isUserDropdownOpen && (
+                  <div className="absolute right-0 mt-3 w-56 bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200/50 py-2 z-50 animate-fadeIn">
+                    <div className="px-4 py-2 border-b border-slate-100">
+                      <p className="text-sm font-semibold text-slate-800 truncate">
+                        {user?.name || user?.email}
+                      </p>
+                      <p className="text-xs text-slate-500 capitalize">{user?.role || 'user'}</p>
+                    </div>
+                    <NavLink
+                      to="/profile"
+                      onClick={() => setIsUserDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      Profile
+                    </NavLink>
+                    <NavLink
+                      to="/orders"
+                      onClick={() => setIsUserDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                      Orders
+                    </NavLink>
+                    {user?.role === 'seller' && (
+                      <NavLink
+                        to="/seller/dashboard"
+                        onClick={() => setIsUserDropdownOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Dashboard
+                      </NavLink>
+                    )}
+                    {user?.role === 'admin' && (
+                      <NavLink
+                        to="/admin"
+                        onClick={() => setIsUserDropdownOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                        Admin
+                      </NavLink>
+                    )}
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-slate-100 mt-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Mobile menu button */}
+          <button
+            onClick={toggleMobileMenu}
+            className="md:hidden relative z-50 p-2 rounded-full text-slate-700 hover:bg-slate-100 focus:outline-none transition-all"
+            aria-label="Toggle menu"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {isMobileMenuOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
+            </svg>
+          </button>
+        </div>
+
+        {/* Mobile Navigation Sheet */}
+        <div
+          className={`fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-all duration-300 md:hidden ${
+            isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+          }`}
+          onClick={closeMobileMenu}
+        />
+        <div
+          className={`fixed top-0 right-0 bottom-0 w-3/4 max-w-sm z-50 bg-white/95 backdrop-blur-xl shadow-2xl transition-transform duration-300 ease-out md:hidden ${
+            isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+        >
+          <div className="flex flex-col h-full pt-20 pb-6 px-4">
+            <div className="space-y-1">
+              <NavLink to="/" onClick={closeMobileMenu} className={mobileLinkClass} end>
+                Home
+              </NavLink>
+              {!user ? (
+                <>
+                  <NavLink to="/login" onClick={closeMobileMenu} className={mobileLinkClass}>
+                    Log in
+                  </NavLink>
+                  <NavLink
+                    to="/register"
+                    onClick={closeMobileMenu}
+                    className="block w-full mt-3 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold text-center shadow-md"
+                  >
+                    Sign up
+                  </NavLink>
+                </>
+              ) : (
+                <>
+                  <div className="my-2 pt-2 border-t border-slate-100">
+                    <div className="flex items-center gap-3 px-4 py-2 mb-2">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold shadow">
+                        {getUserInitials()}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-800">{user?.name || user?.email}</p>
+                        <p className="text-xs text-slate-500 capitalize">{user?.role}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <NavLink to="/profile" onClick={closeMobileMenu} className={mobileLinkClass}>
+                    Profile
+                  </NavLink>
+                  <NavLink to="/orders" onClick={closeMobileMenu} className={mobileLinkClass}>
+                    Orders
+                  </NavLink>
+                  {user?.role === 'seller' && (
+                    <NavLink to="/seller/dashboard" onClick={closeMobileMenu} className={mobileLinkClass}>
+                      Seller Dashboard
+                    </NavLink>
+                  )}
+                  {user?.role === 'admin' && (
+                    <NavLink to="/admin" onClick={closeMobileMenu} className={mobileLinkClass}>
+                      Admin Panel
+                    </NavLink>
+                  )}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left mt-4 px-4 py-3 rounded-xl text-red-600 font-medium bg-red-50 hover:bg-red-100 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Add animation keyframes */}
+      <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
+      `}</style>
+    </nav>
+  );
+};
+
+export default function App() {
+  return (
+    <BrowserRouter>
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow">
           <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/jobs" element={<JobList />} />
-            <Route path="/jobs/:id" element={<JobDetails />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-
-            {/* Footer navigation routes */}
-            <Route path="/find-jobs" element={<FindJobs />} />
-            <Route path="/companies" element={<Companies />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/help-center" element={<HelpCenter />} />
-            <Route path="/career-tips" element={<CareerTips />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/cookie-policy" element={<CookiePolicy />} />
-
-            {/* Protected routes for jobseekers */}
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/my-applications" element={<ProtectedRoute role="jobseeker"><MyApplications /></ProtectedRoute>} />
-
-            {/* Protected routes for employers */}
-            <Route path="/employer/jobs" element={<ProtectedRoute role="employer"><EmployerJobs /></ProtectedRoute>} />
-            <Route path="/employer/post" element={<ProtectedRoute role="employer"><PostJob /></ProtectedRoute>} />
-            <Route path="/employer/applicants/:jobId" element={<ProtectedRoute role="employer"><ApplicantsList /></ProtectedRoute>} />
-
-            {/* Protected routes for admin */}
-            <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/users" element={<ProtectedRoute role="admin"><AdminUsers /></ProtectedRoute>} />
-            <Route path="/admin/jobs" element={<ProtectedRoute role="admin"><AdminJobs /></ProtectedRoute>} />
-            <Route path="/admin/analytics" element={<ProtectedRoute role="admin"><AdminAnalytics /></ProtectedRoute>} />
-
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/seller/dashboard" element={<ProtectedRoute role="seller"><SellerDashboardPage /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute role="admin"><AdminPanel /></ProtectedRoute>} />
+            <Route path="/product/new" element={<ProtectedRoute role="seller"><ProductFormPage /></ProtectedRoute>} />
+            <Route path="/product/edit/:id" element={<ProtectedRoute role="seller"><ProductFormPage /></ProtectedRoute>} />
+            <Route path="/product/:id" element={<ProductDetailPage />} />
+            <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+            <Route path="/messages/:userId" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
           </Routes>
         </main>
         <Footer />
       </div>
-    </AuthProvider>
+    </BrowserRouter>
   );
 }
-
-export default App;

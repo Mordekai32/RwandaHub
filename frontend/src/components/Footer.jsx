@@ -1,189 +1,114 @@
 import { Link } from 'react-router-dom';
-import { MdEmail } from 'react-icons/md';
-import { FaPhone, FaWhatsapp, FaInstagram, FaTwitter, FaLinkedin, FaGithub, FaBriefcase, FaUserFriends, FaQuestionCircle, FaShieldAlt, FaArrowUp } from 'react-icons/fa';
-import { HiLocationMarker } from 'react-icons/hi';
-import { useState, useEffect } from 'react';
 
 export default function Footer() {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 500);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const quickLinks = [
-    { name: 'Find Jobs', path: '/find-jobs' },
-    { name: 'Companies', path: '/companies' },
-    { name: 'Post a Job', path: '/employer/post' },
-    { name: 'About Us', path: '/about' }
-  ];
-
-  const resources = [
-    { name: 'Help Center', path: '/help-center', icon: FaQuestionCircle },
-    { name: 'Career Tips', path: '/career-tips', icon: FaUserFriends },
-    { name: 'Blog', path: '/blog', icon: FaBriefcase },
-    { name: 'Support', path: '/support', icon: FaShieldAlt }
-  ];
-
-  const legalLinks = [
-    { name: 'Privacy Policy', path: '/privacy' },
-    { name: 'Terms of Service', path: '/terms' },
-    { name: 'Cookie Policy', path: '/cookie-policy' }
-  ];
-
-  const contacts = [
-    { href: 'mailto:mordekai893@gmail.com', icon: MdEmail, text: 'mordekai893@gmail.com' },
-    { href: 'tel:+250796381024', icon: FaPhone, text: '+250 796 381 024' },
-    { href: 'tel:+250728800993', icon: FaWhatsapp, text: '+250 728 800 993' }
-  ];
-
-  const socials = [
-    { href: 'https://instagram.com/blaise_320', icon: FaInstagram, label: 'Instagram' },
-    { href: 'https://twitter.com/mordekai668896', icon: FaTwitter, label: 'Twitter' },
-    { href: 'https://linkedin.com/in/ukobukeye-mordekai', icon: FaLinkedin, label: 'LinkedIn' },
-    { href: 'https://github.com/Mordekai32', icon: FaGithub, label: 'GitHub' }
-  ];
-
   return (
-    <>
-      <footer className="relative mt-4 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 border-t border-indigo-500/20 overflow-hidden">
-        {/* Animated glowing background blobs – energetic neon accents */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-blue-500/30 to-emerald-500/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-indigo-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse delay-700" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        </div>
+    <footer className="relative bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-slate-300">
+      {/* Decorative top border - modern emerald to sky gradient */}
+      <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500"></div>
 
-        <div className="relative max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
-            {/* Brand column – premium glass effect */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-emerald-400 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-                  <FaBriefcase className="text-white text-sm" />
+      <div className="container mx-auto px-4 py-3 md:py-4">
+        {/* Main footer grid - reduced gap */}
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+          {/* Brand & Description - tighter spacing */}
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-sky-400 bg-clip-text text-transparent">
+               RwandaMarket
+            </h3>
+            <p className="text-slate-400 text-[11px] leading-tight">
+              Rwanda's trusted online marketplace. Buy and sell safely.
+            </p>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h4 className="text-xs font-semibold text-slate-200 mb-1.5 relative inline-block after:content-[''] after:absolute after:bottom-[-3px] after:left-0 after:w-4 after:h-0.5 after:bg-emerald-500">
+              Quick Links
+            </h4>
+            <ul className="space-y-1 text-[11px]">
+              <li><Link to="/" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">Home</Link></li>
+              <li><Link to="/products" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">All Products</Link></li>
+            </ul>
+          </div>
+
+          {/* Categories */}
+          <div>
+            <h4 className="text-xs font-semibold text-slate-200 mb-1.5 relative inline-block after:content-[''] after:absolute after:bottom-[-3px] after:left-0 after:w-4 after:h-0.5 after:bg-emerald-500">
+              Categories
+            </h4>
+            <ul className="space-y-1 text-[11px]">
+              <li><Link to="/?category=Phones" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">📱 Phones</Link></li>
+              <li><Link to="/?category=Cars" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">🚗 Cars</Link></li>
+              <li><Link to="/?category=Clothes" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">👕 Clothes</Link></li>
+              <li><Link to="/?category=Electronics" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">💻 Electronics</Link></li>
+            </ul>
+          </div>
+
+          {/* Contact & Social */}
+          <div>
+            <h4 className="text-xs font-semibold text-slate-200 mb-1.5 relative inline-block after:content-[''] after:absolute after:bottom-[-3px] after:left-0 after:w-4 after:h-0.5 after:bg-emerald-500">
+              Connect
+            </h4>
+            <ul className="space-y-1 text-[11px]">
+              <li className="flex items-start gap-1">
+                <span className="text-emerald-400">📍</span>
+                <span className="text-slate-400">Kigali, Rwanda</span>
+              </li>
+              <li className="flex items-start gap-1">
+                <span className="text-emerald-400">📞</span>
+                <div className="flex flex-col">
+                  <span className="text-slate-400">+250 796 381 024</span>
+                  <span className="text-slate-500 text-[10px]">+250 728 800 993</span>
                 </div>
-                <h2 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-emerald-300 to-white bg-clip-text text-transparent">
-                  JobFinder Rwanda
-                </h2>
-              </div>
-              <p className="text-slate-300 text-xs leading-relaxed">
-                Bridging talent and opportunity across Rwanda with modern, digital hiring solutions.
-              </p>
-              <div className="flex items-start gap-2 text-slate-300 text-xs">
-                <HiLocationMarker className="text-emerald-400 mt-0.5 flex-shrink-0 text-sm" />
-                <span>Kigali, Rwanda — Serving the entire nation</span>
-              </div>
-            </div>
+              </li>
+              <li className="flex items-start gap-1">
+                <span className="text-emerald-400">✉️</span>
+                <a href="mailto:mordekai893@gmail.com" className="text-slate-400 hover:text-emerald-400 transition-colors duration-200">mordekai893@gmail.com</a>
+              </li>
+            </ul>
 
-            {/* Quick Links */}
-            <div>
-              <h3 className="text-sm font-bold text-white mb-2 relative inline-block">
-                Quick Links
-                <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-blue-400 to-emerald-400 rounded-full" />
-              </h3>
-              <ul className="space-y-1 text-sm">
-                {quickLinks.map(({ name, path }) => (
-                  <li key={name}>
-                    <Link
-                      to={path}
-                      className="text-slate-300 hover:text-white transition-all duration-300 flex items-center gap-2 group"
-                    >
-                      <span className="w-0 group-hover:w-1.5 h-1.5 bg-gradient-to-r from-blue-400 to-emerald-400 rounded-full transition-all duration-300" />
-                      <span className="group-hover:translate-x-0.5 transition-transform">{name}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Resources */}
-            <div>
-              <h3 className="text-sm font-bold text-white mb-2 relative inline-block">
-                Resources
-                <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-blue-400 to-emerald-400 rounded-full" />
-              </h3>
-              <ul className="space-y-1 text-sm">
-                {resources.map(({ name, path, icon: Icon }) => (
-                  <li key={name}>
-                    <Link
-                      to={path}
-                      className="text-slate-300 hover:text-white transition-all duration-300 flex items-center gap-2 group"
-                    >
-                      <Icon className="text-emerald-400 group-hover:scale-110 transition-transform" />
-                      <span className="group-hover:translate-x-0.5 transition-transform">{name}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Connect – vibrant interactive area */}
-            <div>
-              <h3 className="text-sm font-bold text-white mb-2 relative inline-block">
-                Connect
-                <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-blue-400 to-emerald-400 rounded-full" />
-              </h3>
-              <div className="space-y-1 mb-3 text-sm">
-                {contacts.map(({ href, icon: Icon, text }) => (
-                  <a
-                    key={href}
-                    href={href}
-                    className="flex items-center gap-3 text-slate-300 hover:text-white transition-all duration-300 group"
-                  >
-                    <div className="p-1.5 rounded-lg bg-white/10 group-hover:bg-gradient-to-r group-hover:from-blue-500/30 group-hover:to-emerald-500/30 transition-all">
-                      <Icon size={14} className="text-emerald-400 group-hover:text-white" />
-                    </div>
-                    <span className="text-xs group-hover:translate-x-0.5 transition-transform">{text}</span>
-                  </a>
-                ))}
+            <div className="mt-2">
+              <p className="text-slate-500 text-[9px] uppercase tracking-wider mb-1">Follow</p>
+              <div className="flex gap-2">
+                <a 
+                  href="https://instagram.com/blaise_320" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-slate-400 hover:text-pink-500 transition-colors duration-200"
+                  aria-label="Instagram"
+                >
+                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                  </svg>
+                </a>
+                <a 
+                  href="https://mordekai.vercel.app" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-slate-400 hover:text-sky-400 transition-colors duration-200"
+                  aria-label="Portfolio"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </a>
               </div>
-              <div className="flex gap-3">
-                {socials.map(({ href, icon: Icon, label }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-xl bg-white/5 text-blue-400 hover:bg-gradient-to-r hover:from-blue-500 hover:to-emerald-500 hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/30"
-                    aria-label={label}
-                  >
-                    <Icon size={14} />
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom legal links – with glowing separator */}
-          <div className="pt-3 mt-1 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-2 text-xs">
-            <div className="text-slate-400 text-center md:text-left">
-              © {new Date().getFullYear()} JobFinder Rwanda – Connecting talent with opportunity.
-            </div>
-            <div className="flex gap-5">
-              {legalLinks.map(({ name, path }) => (
-                <Link key={name} to={path} className="text-slate-400 hover:text-emerald-400 transition-colors">
-                  {name}
-                </Link>
-              ))}
             </div>
           </div>
         </div>
 
-        {/* Top glow overlay */}
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-transparent via-indigo-950/10 to-transparent" />
-      </footer>
-
-      {/* Back to top button – premium neon style */}
-      {show && (
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-6 right-6 z-50 p-3 bg-gradient-to-r from-blue-600 to-emerald-500 text-white rounded-full shadow-lg shadow-blue-500/50 hover:scale-110 transition-all duration-300 group ring-2 ring-white/20"
-          aria-label="Back to top"
-        >
-          <FaArrowUp className="group-hover:-translate-y-1 transition-transform" size={16} />
-        </button>
-      )}
-    </>
+        {/* Copyright - reduced spacing */}
+        <div className="border-t border-slate-800/50 mt-3 pt-2 flex flex-col md:flex-row justify-between items-center gap-1 text-center text-slate-500 text-[9px]">
+          <p>© {new Date().getFullYear()} Rwanda Marketplace</p>
+          <p className="flex items-center gap-1">
+            Built with  by 
+            <a href="https://mordekai.vercel.app" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 transition-colors">Mordekai</a>
+          </p>
+          <div className="flex gap-2">
+            <Link to="/privacy" className="hover:text-emerald-400 transition-colors">Privacy</Link>
+            <Link to="/terms" className="hover:text-emerald-400 transition-colors">Terms</Link>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 }
