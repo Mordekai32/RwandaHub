@@ -8,9 +8,40 @@ const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
+
+// ========== ENHANCED CORS CONFIGURATION ==========
+const allowedOrigins = [
+  'https://rwandahub.vercel.app',        // Your production frontend on Vercel
+  'http://localhost:5173',               // Vite default dev server
+  'http://localhost:3000',               // React default dev server
+  'http://localhost:5000'                // Local backend testing
+];
+
+// Add FRONTEND_URL from environment if provided (Render variable)
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,   // If you need cookies / authorization headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
+// Cloudinary configuration
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -437,13 +468,12 @@ app.get('/api/admin/orders', auth, adminOnly, async (req, res) => {
   }
 });
 
-// ✅ NEW: DELETE order by admin (with stock restoration)
+// DELETE order by admin (with stock restoration)
 app.delete('/api/admin/orders/:id', auth, adminOnly, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
-    // Restore product stock and adjust sold count
     const product = await Product.findById(order.productId);
     if (product) {
       product.stock += order.quantity;
