@@ -65,4 +65,4 @@ The Rwanda Market Platform connects producers directly with buyers across the co
 1. **Clone the repository**
    ```bash
    git clone https://github.com/Mordekai32/RwandaHub.git
-   
+   cd RwandaHub
