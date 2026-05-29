@@ -11,13 +11,14 @@ const app = express();
 
 // ========== ENHANCED CORS CONFIGURATION ==========
 const allowedOrigins = [
-  'https://rwandahub.vercel.app',        // Your production frontend on Vercel
-  'http://localhost:5173',               // Vite default dev server
-  'http://localhost:3000',               // React default dev server
-  'http://localhost:5000'                // Local backend testing
+  'https://rwandamarket.vercel.app',     // ✅ YOUR CORRECT FRONTEND DOMAIN
+  'https://rwandahub.vercel.app',       // (keep if you have other frontends)
+  'http://localhost:5173',               // Vite dev
+  'http://localhost:3000',               // React dev
+  'http://localhost:5000'                // Local backend
 ];
 
-// Add FRONTEND_URL from environment if provided (Render variable)
+// Add FRONTEND_URL from environment (Render variable)
 if (process.env.FRONTEND_URL) {
   allowedOrigins.push(process.env.FRONTEND_URL);
 }
@@ -33,7 +34,7 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true,   // If you need cookies / authorization headers
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
@@ -326,7 +327,7 @@ app.post('/api/orders', auth, async (req, res) => {
     const { productId, quantity } = req.body;
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ error: 'Product not found' });
-    if (product.stock < quantity) return res.status(400).json({ error: 'Insufficient stock' });
+    if (product.stock < quantity) return res.status(400). json({ error: 'Insufficient stock' });
     const totalPrice = product.price * quantity;
     const order = new Order({
       productId,
@@ -468,12 +469,10 @@ app.get('/api/admin/orders', auth, adminOnly, async (req, res) => {
   }
 });
 
-// DELETE order by admin (with stock restoration)
 app.delete('/api/admin/orders/:id', auth, adminOnly, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ error: 'Order not found' });
-
     const product = await Product.findById(order.productId);
     if (product) {
       product.stock += order.quantity;
@@ -481,7 +480,6 @@ app.delete('/api/admin/orders/:id', auth, adminOnly, async (req, res) => {
       if (product.sold < 0) product.sold = 0;
       await product.save();
     }
-
     await order.deleteOne();
     res.json({ message: 'Order deleted successfully, stock restored' });
   } catch (err) {
