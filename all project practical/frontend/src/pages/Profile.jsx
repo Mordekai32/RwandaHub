@@ -3,41 +3,59 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const [name, setName] = useState('');
   const [profileImage, setProfileImage] = useState(null);
   const [profilePreview, setProfilePreview] = useState('');
   const [uploading, setUploading] = useState(false);
   const [company, setCompany] = useState(null);
-  const [companyForm, setCompanyForm] = useState({ name: '', description: '', website: '', phone: '', logo: null });
-  const [companyLogoPreview, setCompanyLogoPreview] = useState('');
+  const [companyForm, setCompanyForm] = useState({ name: '', description: '', website: '', phone: '' });
   const [uploadingCompany, setUploadingCompany] = useState(false);
+
+  // Helper to get full image URL (handles both relative and absolute paths)
+  const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    return `${api.defaults.baseURL}${path}`;
+  };
 
   useEffect(() => {
     if (user) {
       setName(user.name);
-      if (user.profileImage) setProfilePreview(`http://localhost:5000${user.profileImage}`);
+      if (user.profileImage) setProfilePreview(getImageUrl(user.profileImage));
       if (user.role === 'employer') {
-        api.get('/api/company')
-          .then(res => {
-            setCompany(res.data);
-            setCompanyForm({
-              name: res.data.name,
-              description: res.data.description || '',
-              website: res.data.website || '',
-              phone: res.data.phone || '',
-              logo: null
-            });
-            if (res.data.logo) setCompanyLogoPreview(`http://localhost:5000${res.data.logo}`);
-          })
-          .catch(() => setCompany(null));
+        fetchCompany();
       }
     }
+    // Cleanup profile preview blob URL on unmount
+    return () => {
+      if (profilePreview && profilePreview.startsWith('blob:')) URL.revokeObjectURL(profilePreview);
+    };
   }, [user]);
+
+  const fetchCompany = async () => {
+    try {
+      const res = await api.get('/api/company');
+      setCompany(res.data);
+      setCompanyForm({
+        name: res.data.name,
+        description: res.data.description || '',
+        website: res.data.website || '',
+        phone: res.data.phone || '',
+      });
+    } catch (err) {
+      if (err.response?.status === 404) {
+        setCompany(null);
+      } else {
+        console.error('Error fetching company:', err);
+      }
+    }
+  };
 
   const handleProfileImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (profilePreview && profilePreview.startsWith('blob:')) URL.revokeObjectURL(profilePreview);
       setProfileImage(file);
       setProfilePreview(URL.createObjectURL(file));
     }
@@ -50,13 +68,16 @@ export default function Profile() {
       const formData = new FormData();
       formData.append('name', name);
       if (profileImage) formData.append('profileImage', profileImage);
-      
+
       const response = await api.put('/api/profile', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       alert('Profile updated successfully');
-      if (response.data.user) {
-        window.location.reload();
+      if (response.data) {
+        const updatedUser = { ...user, name: response.data.name, profileImage: response.data.profileImage };
+        setUser(updatedUser);
+        if (response.data.profileImage) setProfilePreview(getImageUrl(response.data.profileImage));
+        setProfileImage(null);
       }
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to update profile');
@@ -65,36 +86,32 @@ export default function Profile() {
     }
   };
 
-  const handleCompanyLogoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setCompanyForm({ ...companyForm, logo: file });
-      setCompanyLogoPreview(URL.createObjectURL(file));
-    }
-  };
-
   const createOrUpdateCompany = async (e) => {
     e.preventDefault();
     setUploadingCompany(true);
     try {
-      const formData = new FormData();
-      formData.append('name', companyForm.name);
-      formData.append('description', companyForm.description);
-      formData.append('website', companyForm.website);
-      formData.append('phone', companyForm.phone);
-      if (companyForm.logo) formData.append('logo', companyForm.logo);
-      
+      const payload = {
+        name: companyForm.name,
+        description: companyForm.description,
+        website: companyForm.website,
+        phone: companyForm.phone,
+      };
+
+      let response;
       if (company) {
-        await api.put('/api/company', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        response = await api.put('/api/company', payload);
       } else {
-        await api.post('/api/company', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        response = await api.post('/api/company', payload);
       }
       alert('Company saved successfully');
-      window.location.reload();
+      const updatedCompany = response.data;
+      setCompany(updatedCompany);
+      setCompanyForm({
+        name: updatedCompany.name,
+        description: updatedCompany.description || '',
+        website: updatedCompany.website || '',
+        phone: updatedCompany.phone || '',
+      });
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to save company');
     } finally {
@@ -171,21 +188,6 @@ export default function Profile() {
               {company ? 'Edit Company' : 'Create Company Profile'}
             </h2>
             <form onSubmit={createOrUpdateCompany} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Company Logo</label>
-                <div className="flex items-center space-x-4">
-                  {companyLogoPreview && (
-                    <img src={companyLogoPreview} alt="Company Logo Preview" className="h-16 w-16 object-contain border border-white/20 rounded" />
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleCompanyLogoChange}
-                    className="block text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-300 file:border file:border-emerald-500/30 hover:file:bg-emerald-500/30"
-                  />
-                </div>
-              </div>
-
               <div>
                 <label className="block text-sm font-medium text-slate-300">Company Name</label>
                 <input
