@@ -1,9 +1,9 @@
 // API.js
 import axios from 'axios';
 
-// Create an axios instance with the correct base URL
+// ✅ Base URL must include '/api'
 const API = axios.create({
-  baseURL: 'https://rwandahub.onrender.com', // fixed .com, not .co
+  baseURL: 'https://rwandahub.onrender.com/api',   // <-- fixed: added /api
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -47,12 +47,26 @@ export const getProducts = async () => {
   }
 };
 
-// Example: user login
+// User login
 export const login = async (email, password) => {
   try {
     const response = await API.post('/auth/login', { email, password });
     localStorage.setItem('token', response.data.token);
     localStorage.setItem('user', JSON.stringify(response.data.user));
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// User registration (add this if missing)
+export const register = async (userData) => {
+  try {
+    const response = await API.post('/auth/register', userData);
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+    }
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
