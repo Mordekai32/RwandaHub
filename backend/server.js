@@ -11,21 +11,19 @@ const app = express();
 
 // ========== ENHANCED CORS CONFIGURATION ==========
 const allowedOrigins = [
-  'https://rwandamarket.vercel.app',     // ✅ YOUR CORRECT FRONTEND DOMAIN
-  'https://rwandahub.vercel.app',       // (keep if you have other frontends)
-  'http://localhost:5173',               // Vite dev
-  'http://localhost:3000',               // React dev
-  'http://localhost:5000'                // Local backend
+  'https://rwandamarket.vercel.app',
+  'https://rwandahub.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:5000'
 ];
 
-// Add FRONTEND_URL from environment (Render variable)
 if (process.env.FRONTEND_URL) {
   allowedOrigins.push(process.env.FRONTEND_URL);
 }
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
@@ -42,7 +40,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Cloudinary configuration
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -327,7 +324,7 @@ app.post('/api/orders', auth, async (req, res) => {
     const { productId, quantity } = req.body;
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ error: 'Product not found' });
-    if (product.stock < quantity) return res.status(400). json({ error: 'Insufficient stock' });
+    if (product.stock < quantity) return res.status(400).json({ error: 'Insufficient stock' });
     const totalPrice = product.price * quantity;
     const order = new Order({
       productId,
