@@ -11,7 +11,7 @@
     "vercel-build": "npm run build"
   },
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
