@@ -59,7 +59,7 @@ export const login = async (email, password) => {
   }
 };
 
-// User registration (add this if missing)
+// User registration
 export const register = async (userData) => {
   try {
     const response = await API.post('/auth/register', userData);

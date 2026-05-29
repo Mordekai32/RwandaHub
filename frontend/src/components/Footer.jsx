@@ -100,7 +100,7 @@ export default function Footer() {
         <div className="border-t border-[#333333] mt-4 pt-3 flex flex-col md:flex-row justify-between items-center gap-1 text-center text-[#777777] text-[10px]">
           <p>© {new Date().getFullYear()} Rwanda Marketplace</p>
           <p className="flex items-center gap-1">
-            Built with  by 
+            Built with ❤️ by 
             <a href="https://mordekai.vercel.app" target="_blank" rel="noopener noreferrer" className="text-[#999999] hover:text-[#FF6A00] transition-colors">Mordekai</a>
           </p>
           <div className="flex gap-2">
