@@ -26,7 +26,7 @@ export default function Footer() {
             </h4>
             <ul className="space-y-1 text-[11px]">
               <li><Link to="/" className="text-[#CBD5E1] hover:text-[#F97316] transition-colors duration-200">Home</Link></li>
-              <li><Link to="/products" className="text-[#CBD5E1] hover:text-[#F97316] transition-colors duration-200">All Products</Link></li>
+              <li><Link to="/" className="text-[#CBD5E1] hover:text-[#F97316] transition-colors duration-200">All Products</Link></li>
             </ul>
           </div>
 
