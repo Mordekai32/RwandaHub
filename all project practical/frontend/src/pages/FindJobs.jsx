@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaSearch, FaMapMarkerAlt, FaDollarSign, FaBriefcase, FaFilter, FaTimes, FaBuilding, FaChevronLeft, FaChevronRight, FaSpinner } from 'react-icons/fa';
+import { FaSearch, FaMapMarkerAlt, FaDollarSign, FaBriefcase, FaFilter, FaTimes, FaBuilding, FaChevronLeft, FaChevronRight, FaSlidersH, FaRegBuilding, FaRegClock, FaRegCalendarAlt } from 'react-icons/fa';
 import api from '../api/axios';
 import JobCard from '../components/JobCard';
 
@@ -34,12 +34,11 @@ export default function FindJobs() {
         ...(filters.maxSalary && { maxSalary: filters.maxSalary }),
       });
       const res = await api.get(`/api/jobs?${params.toString()}`);
-      setJobs(res.data.jobs || res.data); // handle both paginated and non-paginated responses
+      setJobs(res.data.jobs || res.data);
       if (res.data.totalPages) {
         setTotalPages(res.data.totalPages);
         setTotalJobs(res.data.totalJobs);
       } else {
-        // fallback for non-paginated backend
         setTotalPages(Math.ceil(res.data.length / jobsPerPage));
         setTotalJobs(res.data.length);
       }
@@ -53,7 +52,7 @@ export default function FindJobs() {
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
-    setCurrentPage(1); // reset to first page on filter change
+    setCurrentPage(1);
   };
 
   const resetFilters = () => {
@@ -71,94 +70,96 @@ export default function FindJobs() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+    <div className="min-h-screen bg-[#F3F4F6]">
+      {/* Hero Section - Modern Glassmorphic */}
+      <section className="relative bg-gradient-to-r from-[#1E3A8A] via-[#1E3A8A] to-[#3B82F6] text-white overflow-hidden">
+        {/* Animated background blobs */}
+        <div className="absolute inset-0 bg-black/5"></div>
+        <div className="absolute top-0 -right-32 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 -left-32 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse delay-700"></div>
+        
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg mb-6">
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-2 shadow-lg mb-6 border border-white/30">
             <FaBriefcase className="text-white" />
-            <span className="text-sm font-medium">10,000+ opportunities</span>
+            <span className="text-sm font-medium">10,000+ live opportunities</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">
-            Find Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-pink-300">Dream Job</span>
+            Find Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#10B981] to-[#3B82F6]">Dream Job</span>
           </h1>
-          <p className="text-xl text-indigo-100 max-w-2xl mx-auto mb-8">
-            Search thousands of jobs from top employers in Rwanda and beyond.
+          <p className="text-xl text-blue-100 max-w-2xl mx-auto mb-8">
+            Search thousands of jobs from top employers in Rwanda and beyond. Your next career starts here.
           </p>
 
-          {/* Main search bar */}
+          {/* Enhanced search bar */}
           <div className="max-w-2xl mx-auto">
-            <div className="relative">
-              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <div className="relative group">
+              <FaSearch className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#10B981] transition-colors" />
               <input
                 type="text"
                 name="title"
                 placeholder="Job title, keyword, or company..."
                 value={filters.title}
                 onChange={handleFilterChange}
-                className="w-full pl-12 pr-4 py-4 rounded-xl bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-lg"
+                className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/95 backdrop-blur-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:bg-white shadow-xl transition-all duration-300"
               />
             </div>
           </div>
 
-          {/* Quick stats */}
-          <div className="flex flex-wrap justify-center gap-8 mt-12 text-sm">
-            <div className="flex items-center gap-2">
-              <FaBuilding className="text-yellow-300" />
+          {/* Stats with icons */}
+          <div className="flex flex-wrap justify-center gap-8 mt-12 text-sm font-medium">
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
+              <FaBuilding className="text-[#10B981]" />
               <span>500+ Companies</span>
             </div>
-            <div className="flex items-center gap-2">
-              <FaMapMarkerAlt className="text-yellow-300" />
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
+              <FaMapMarkerAlt className="text-[#10B981]" />
               <span>All across Rwanda</span>
             </div>
-            <div className="flex items-center gap-2">
-              <FaDollarSign className="text-yellow-300" />
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
+              <FaDollarSign className="text-[#10B981]" />
               <span>Competitive salaries</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Main content with sidebar */}
+      {/* Main content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Mobile filter toggle */}
-        <div className="lg:hidden mb-4 flex justify-between items-center">
+        {/* Mobile filter bar */}
+        <div className="lg:hidden mb-6 flex justify-between items-center">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-md text-gray-700 hover:bg-gray-50 transition"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white rounded-xl shadow-md text-gray-700 hover:bg-gray-50 transition-all duration-200 border border-gray-200"
           >
-            <FaFilter /> Filters
-            {hasActiveFilters && <span className="ml-1 px-1.5 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full">{Object.values(filters).filter(Boolean).length}</span>}
+            <FaFilter className="text-[#10B981]" /> Filters
+            {hasActiveFilters && <span className="ml-1 px-2 py-0.5 text-xs bg-[#10B981]/10 text-[#10B981] rounded-full font-semibold">{Object.values(filters).filter(Boolean).length}</span>}
           </button>
           {hasActiveFilters && (
-            <button onClick={resetFilters} className="text-sm text-indigo-600 hover:text-indigo-800">
+            <button onClick={resetFilters} className="text-sm text-[#10B981] font-medium hover:text-[#10B981]/80 transition">
               Reset all
             </button>
           )}
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar filters - desktop always visible, mobile as drawer */}
+          {/* Sidebar - modern card with rounded-2xl */}
           <aside className={`
             fixed inset-0 z-50 lg:relative lg:inset-auto lg:z-auto lg:block lg:w-80
-            transition-transform duration-300 transform
+            transition-transform duration-300 ease-out transform
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-            bg-white lg:bg-transparent lg:rounded-xl lg:border lg:border-gray-200 lg:shadow-sm
+            bg-white lg:bg-white lg:rounded-2xl lg:border lg:border-gray-100 lg:shadow-xl
           `}>
             {/* Mobile drawer header */}
-            <div className="lg:hidden flex justify-between items-center p-4 border-b bg-white">
-              <h2 className="font-bold text-lg">Filters</h2>
-              <button onClick={() => setSidebarOpen(false)} className="p-1 rounded-full hover:bg-gray-100">
-                <FaTimes />
+            <div className="lg:hidden flex justify-between items-center p-5 border-b bg-white">
+              <h2 className="font-bold text-lg text-gray-800">Filters</h2>
+              <button onClick={() => setSidebarOpen(false)} className="p-2 rounded-full hover:bg-gray-100 transition">
+                <FaTimes className="text-gray-500" />
               </button>
             </div>
 
-            <div className="p-5 space-y-6 bg-white lg:bg-white lg:rounded-xl lg:shadow-sm">
+            <div className="p-6 space-y-7 bg-white lg:bg-white lg:rounded-2xl">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">Location</label>
                 <div className="relative">
                   <FaMapMarkerAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
@@ -167,13 +168,13 @@ export default function FindJobs() {
                     placeholder="City, region or remote"
                     value={filters.location}
                     onChange={handleFilterChange}
-                    className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#10B981] focus:border-transparent bg-gray-50/50 transition"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Salary (RWF)</label>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">Minimum Salary (RWF)</label>
                 <div className="relative">
                   <FaDollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
@@ -182,13 +183,13 @@ export default function FindJobs() {
                     placeholder="e.g., 500000"
                     value={filters.minSalary}
                     onChange={handleFilterChange}
-                    className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+                    className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#10B981] bg-gray-50/50 transition"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Maximum Salary (RWF)</label>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">Maximum Salary (RWF)</label>
                 <div className="relative">
                   <FaDollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
@@ -197,49 +198,48 @@ export default function FindJobs() {
                     placeholder="e.g., 2000000"
                     value={filters.maxSalary}
                     onChange={handleFilterChange}
-                    className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+                    className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#10B981] bg-gray-50/50 transition"
                   />
                 </div>
               </div>
 
               <button
                 onClick={resetFilters}
-                className="w-full mt-4 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                className="w-full mt-2 px-4 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition font-medium"
               >
-                Reset filters
+                Reset all filters
               </button>
             </div>
           </aside>
 
           {/* Job listings area */}
           <main className="flex-1">
-            {/* Results header */}
-            <div className="flex justify-between items-center mb-5">
+            {/* Results header with better typography */}
+            <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-xl font-bold text-gray-800">
+                <h2 className="text-2xl font-bold text-gray-800">
                   {loading ? 'Loading jobs...' : `${totalJobs} job${totalJobs !== 1 ? 's' : ''} found`}
                 </h2>
                 {!loading && totalJobs > 0 && (
                   <p className="text-sm text-gray-500 mt-1">
-                    Showing {Math.min((currentPage - 1) * jobsPerPage + 1, totalJobs)} - {Math.min(currentPage * jobsPerPage, totalJobs)} of {totalJobs}
+                    Showing {Math.min((currentPage - 1) * jobsPerPage + 1, totalJobs)} – {Math.min(currentPage * jobsPerPage, totalJobs)} of {totalJobs}
                   </p>
                 )}
               </div>
-              {/* Desktop reset button (optional) */}
               <div className="hidden lg:block">
                 {hasActiveFilters && (
-                  <button onClick={resetFilters} className="text-sm text-indigo-600 hover:text-indigo-800">
-                    Reset filters
+                  <button onClick={resetFilters} className="text-sm font-medium text-[#10B981] hover:text-[#10B981]/80 transition">
+                    Clear all filters
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Loading skeleton */}
+            {/* Loading skeleton with shimmer effect */}
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="bg-white rounded-2xl shadow-sm p-5 animate-pulse">
+                  <div key={i} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 animate-pulse">
                     <div className="flex items-start gap-3">
                       <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
                       <div className="flex-1">
@@ -252,19 +252,19 @@ export default function FindJobs() {
                       <div className="h-3 bg-gray-200 rounded w-5/6"></div>
                     </div>
                     <div className="mt-4 flex gap-2">
-                      <div className="h-6 bg-gray-200 rounded w-20"></div>
-                      <div className="h-6 bg-gray-200 rounded w-24"></div>
+                      <div className="h-6 bg-gray-200 rounded-full w-20"></div>
+                      <div className="h-6 bg-gray-200 rounded-full w-24"></div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : jobs.length === 0 ? (
-              <div className="bg-white rounded-2xl shadow-sm py-16 text-center">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 py-16 text-center">
                 <FaBriefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-700">No jobs found</h3>
                 <p className="text-gray-500 mt-2">Try adjusting your filters or search keywords.</p>
                 {hasActiveFilters && (
-                  <button onClick={resetFilters} className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                  <button onClick={resetFilters} className="mt-5 px-5 py-2.5 bg-[#10B981] text-white rounded-xl hover:bg-[#10B981]/90 transition shadow-md">
                     Clear all filters
                   </button>
                 )}
@@ -277,13 +277,13 @@ export default function FindJobs() {
                   ))}
                 </div>
 
-                {/* Pagination */}
+                {/* Modern pagination with better styling */}
                 {totalPages > 1 && (
-                  <div className="mt-10 flex justify-center items-center gap-2">
+                  <div className="mt-12 flex justify-center items-center gap-2">
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="p-2 rounded-lg border border-gray-300 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
+                      className="p-2 rounded-xl border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition"
                     >
                       <FaChevronLeft />
                     </button>
@@ -303,10 +303,10 @@ export default function FindJobs() {
                           <button
                             key={pageNum}
                             onClick={() => handlePageChange(pageNum)}
-                            className={`w-10 h-10 rounded-lg transition ${
+                            className={`w-10 h-10 rounded-xl font-medium transition ${
                               currentPage === pageNum
-                                ? 'bg-indigo-600 text-white'
-                                : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                ? 'bg-[#10B981] text-white shadow-md'
+                                : 'border border-gray-200 text-gray-700 hover:bg-gray-50'
                             }`}
                           >
                             {pageNum}
@@ -317,7 +317,7 @@ export default function FindJobs() {
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="p-2 rounded-lg border border-gray-300 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
+                      className="p-2 rounded-xl border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition"
                     >
                       <FaChevronRight />
                     </button>
@@ -329,9 +329,9 @@ export default function FindJobs() {
         </div>
       </div>
 
-      {/* Overlay for mobile drawer */}
+      {/* Overlay for mobile drawer with blur */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)}></div>
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden transition-all" onClick={() => setSidebarOpen(false)}></div>
       )}
     </div>
   );
